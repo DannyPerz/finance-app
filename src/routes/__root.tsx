@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 
 import appCss from "../styles.css?url";
@@ -15,38 +16,14 @@ const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getIte
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "Finova — Control Financiero Personal",
-      },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "Finova — Control Financiero Personal" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
-  component: RootComponent,
-  shellComponent: RootDocument,
+  component: RootDocument,
 });
-
-function RootComponent() {
-  return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      <Sidebar />
-      <main className="flex flex-1 flex-col overflow-hidden">
-        <Outlet />
-      </main>
-    </div>
-  );
-}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
@@ -55,12 +32,20 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased">
-        {children}
+      <body className="font-sans antialiased text-foreground bg-background">
+        <div className="relative flex min-h-screen flex-col">
+          <Header />
+          <div className="flex flex-1">
+            <Sidebar />
+            <main className="flex-1 w-full lg:pl-64">
+              <div className="h-full p-6 sm:p-8 animate-in-up">
+                <Outlet />
+              </div>
+            </main>
+          </div>
+        </div>
         <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
+          config={{ position: "bottom-right" }}
           plugins={[
             {
               name: "Tanstack Router",

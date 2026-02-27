@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import TopBar from "@/components/TopBar";
-import { Plus, Receipt } from "lucide-react";
 import { getBudgets } from "@/server/budgets.functions";
 
 export const Route = createFileRoute("/budgets")({
@@ -13,7 +11,7 @@ const formatCOP = (n: string | number) =>
     style: "currency",
     currency: "COP",
     maximumFractionDigits: 0,
-  }).format(typeof n === "string" ? parseFloat(n) : n);
+  }).format(Number(n));
 
 function BudgetsPage() {
   const budgets = Route.useLoaderData();
@@ -34,94 +32,67 @@ function BudgetsPage() {
   ];
 
   return (
-    <>
-      <TopBar title="Presupuestos" />
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Controla tus límites de gasto por categoría —{" "}
-              {monthNames[now.getMonth()]} {now.getFullYear()}
-            </p>
-            <button className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700">
-              <Plus className="h-4 w-4" />
-              Nuevo Presupuesto
-            </button>
-          </div>
-
-          {budgets.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-border bg-card p-10 text-center">
-              <Receipt className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                No hay presupuestos para este mes
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {budgets.map((b) => {
-                const spent = parseFloat(b.spent || "0");
-                const limit = parseFloat(b.amount);
-                const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
-                const remaining = limit - spent;
-
-                return (
-                  <div
-                    key={b.id}
-                    className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg">
-                          📊
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">
-                            {b.categoryName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {remaining >= 0
-                              ? `${formatCOP(remaining)} disponible`
-                              : `${formatCOP(Math.abs(remaining))} excedido`}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                          pct >= 100
-                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            : pct >= 80
-                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                              : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                        }`}
-                      >
-                        {pct}%
-                      </span>
-                    </div>
-                    <div className="mt-4">
-                      <div className="mb-1.5 flex justify-between text-xs text-muted-foreground">
-                        <span>{formatCOP(spent)}</span>
-                        <span>{formatCOP(limit)}</span>
-                      </div>
-                      <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full transition-all ${
-                            pct >= 100
-                              ? "bg-red-500"
-                              : pct >= 80
-                                ? "bg-amber-500"
-                                : "bg-emerald-500"
-                          }`}
-                          style={{ width: `${Math.min(pct, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+    <div className="space-y-6">
+      <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Presupuestos</h1>
+          <p className="text-muted-foreground">
+            {monthNames[now.getMonth()]} {now.getFullYear()}
+          </p>
         </div>
+        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+          + Nuevo Presupuesto
+        </button>
       </div>
-    </>
+
+      {budgets.length === 0 ? (
+        <div className="glass rounded-xl p-10 text-center border-dashed">
+          <p className="text-muted-foreground">
+            No hay presupuestos para este mes.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          {budgets.map((b) => {
+            const spent = parseFloat(b.spent || "0");
+            const limit = parseFloat(b.amount);
+            const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+            const remaining = limit - spent;
+
+            return (
+              <div key={b.id} className="glass rounded-xl p-6 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold">{b.categoryName}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {remaining >= 0
+                        ? `${formatCOP(remaining)} disponible`
+                        : `${formatCOP(Math.abs(remaining))} excedido`}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-sm font-semibold ${pct >= 90 ? "text-destructive" : "text-muted-foreground"}`}
+                  >
+                    {pct}%
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                    <span>{formatCOP(spent)}</span>
+                    <span>{formatCOP(limit)}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${pct >= 90 ? "bg-destructive" : "bg-primary"}`}
+                      style={{ width: `${Math.min(pct, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
