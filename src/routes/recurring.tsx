@@ -1,8 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getRecurringTransactions } from "@/server/recurring.functions";
+import { getAccounts } from "@/server/accounts.functions";
+import { getCategories } from "@/server/categories.functions";
+import { CreateRecurringModal } from "@/components/modals/CreateRecurringModal";
 
 export const Route = createFileRoute("/recurring")({
-  loader: () => getRecurringTransactions(),
+  loader: async () => {
+    const [recurring, accounts, categories] = await Promise.all([
+      getRecurringTransactions(),
+      getAccounts(),
+      getCategories(),
+    ]);
+    return { recurring, accounts, categories };
+  },
   component: RecurringPage,
 });
 
@@ -22,7 +32,7 @@ const frequencyLabels: Record<string, string> = {
 };
 
 function RecurringPage() {
-  const recurring = Route.useLoaderData();
+  const { recurring, accounts, categories } = Route.useLoaderData();
 
   return (
     <div className="space-y-6">
@@ -33,9 +43,7 @@ function RecurringPage() {
             Suscripciones y pagos automáticos.
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nuevo Recurrente
-        </button>
+        <CreateRecurringModal accounts={accounts} categories={categories} />
       </div>
 
       {recurring.length === 0 ? (

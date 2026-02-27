@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getAccounts } from "@/server/accounts.functions";
+import { CreateAccountModal } from "@/components/modals/CreateAccountModal";
 
 export const Route = createFileRoute("/accounts")({
   loader: () => getAccounts(),
@@ -25,9 +26,7 @@ function AccountsPage() {
             Tus cuentas bancarias y billeteras.
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nueva Cuenta
-        </button>
+        <CreateAccountModal />
       </div>
 
       {accounts.length === 0 ? (

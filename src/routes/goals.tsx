@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getGoals } from "@/server/goals.functions";
+import { CreateGoalModal } from "@/components/modals/CreateGoalModal";
 
 export const Route = createFileRoute("/goals")({
   loader: () => getGoals(),
@@ -36,9 +37,7 @@ function GoalsPage() {
             Define y monitorea tu progreso.
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nueva Meta
-        </button>
+        <CreateGoalModal />
       </div>
 
       {goals.length === 0 ? (

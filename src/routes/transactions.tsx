@@ -1,8 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getTransactions } from "@/server/transactions.functions";
+import { getAccounts } from "@/server/accounts.functions";
+import { getCategories } from "@/server/categories.functions";
+import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
 
 export const Route = createFileRoute("/transactions")({
-  loader: () => getTransactions(),
+  loader: async () => {
+    const [transactions, accounts, categories] = await Promise.all([
+      getTransactions(),
+      getAccounts(),
+      getCategories(),
+    ]);
+    return { transactions, accounts, categories };
+  },
   component: TransactionsPage,
 });
 
@@ -14,7 +24,7 @@ const formatCOP = (n: string) =>
   }).format(parseFloat(n));
 
 function TransactionsPage() {
-  const transactions = Route.useLoaderData();
+  const { transactions, accounts, categories } = Route.useLoaderData();
 
   return (
     <div className="space-y-6">
@@ -25,9 +35,7 @@ function TransactionsPage() {
             Historial de movimientos financieros.
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nueva Transacción
-        </button>
+        <CreateTransactionModal accounts={accounts} categories={categories} />
       </div>
 
       {transactions.length === 0 ? (

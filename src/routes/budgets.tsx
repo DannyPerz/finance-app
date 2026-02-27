@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getBudgets } from "@/server/budgets.functions";
+import { getCategories } from "@/server/categories.functions";
+import { CreateBudgetModal } from "@/components/modals/CreateBudgetModal";
 
 export const Route = createFileRoute("/budgets")({
-  loader: () => getBudgets(),
+  loader: async () => {
+    const [budgets, categories] = await Promise.all([
+      getBudgets(),
+      getCategories(),
+    ]);
+    return { budgets, categories };
+  },
   component: BudgetsPage,
 });
 
@@ -14,7 +22,7 @@ const formatCOP = (n: string | number) =>
   }).format(Number(n));
 
 function BudgetsPage() {
-  const budgets = Route.useLoaderData();
+  const { budgets, categories } = Route.useLoaderData();
   const now = new Date();
   const monthNames = [
     "Enero",
@@ -40,9 +48,7 @@ function BudgetsPage() {
             {monthNames[now.getMonth()]} {now.getFullYear()}
           </p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nuevo Presupuesto
-        </button>
+        <CreateBudgetModal categories={categories} />
       </div>
 
       {budgets.length === 0 ? (

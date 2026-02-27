@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getDebts } from "@/server/debts.functions";
+import { CreateDebtModal } from "@/components/modals/CreateDebtModal";
 
 export const Route = createFileRoute("/debts")({
   loader: () => getDebts(),
@@ -23,9 +24,7 @@ function DebtsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Deudas</h1>
           <p className="text-muted-foreground">Seguimiento y amortización.</p>
         </div>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nueva Deuda
-        </button>
+        <CreateDebtModal />
       </div>
 
       {debts.length === 0 ? (
