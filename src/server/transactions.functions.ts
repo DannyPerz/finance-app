@@ -104,3 +104,95 @@ export const getMonthSummary = createServerFn().handler(async () => {
 
   return { income, expense };
 });
+
+// Chart data: expenses grouped by category for current month
+export const getExpensesByCategory = createServerFn().handler(async () => {
+  const now = new Date();
+  const firstDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const lastDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()}`;
+
+  const result = await db
+    .select({
+      category: categories.name,
+      total: sql<string>`COALESCE(SUM(${transactions.amount}::numeric), 0)::text`,
+    })
+    .from(transactions)
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(
+      and(
+        eq(transactions.userId, TEMP_USER_ID),
+        eq(transactions.type, "expense"),
+        gte(transactions.date, firstDay),
+        lte(transactions.date, lastDay),
+      ),
+    )
+    .groupBy(categories.name);
+
+  return result.map((r) => ({
+    category: r.category || "Sin categoría",
+    total: parseFloat(r.total),
+  }));
+});
+
+// Chart data: monthly income vs expense for last 6 months
+export const getMonthlyTrend = createServerFn().handler(async () => {
+  const now = new Date();
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const startDate = `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, "0")}-01`;
+
+  const result = await db
+    .select({
+      month: sql<string>`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`,
+      type: transactions.type,
+      total: sql<string>`COALESCE(SUM(${transactions.amount}::numeric), 0)::text`,
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.userId, TEMP_USER_ID),
+        gte(transactions.date, startDate),
+      ),
+    )
+    .groupBy(
+      sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`,
+      transactions.type,
+    )
+    .orderBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`);
+
+  // Pivot into { month, income, expense } rows
+  const monthMap = new Map<
+    string,
+    { month: string; income: number; expense: number }
+  >();
+  const monthLabels = [
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+  ];
+
+  for (const row of result) {
+    if (row.type === "transfer") continue;
+    if (!monthMap.has(row.month)) {
+      const [, m] = row.month.split("-");
+      monthMap.set(row.month, {
+        month: monthLabels[parseInt(m) - 1],
+        income: 0,
+        expense: 0,
+      });
+    }
+    const entry = monthMap.get(row.month)!;
+    if (row.type === "income") entry.income = parseFloat(row.total);
+    if (row.type === "expense") entry.expense = parseFloat(row.total);
+  }
+
+  return Array.from(monthMap.values());
+});

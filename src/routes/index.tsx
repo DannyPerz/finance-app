@@ -3,24 +3,47 @@ import { getAccounts } from "@/server/accounts.functions";
 import {
   getTransactions,
   getMonthSummary,
+  getExpensesByCategory,
+  getMonthlyTrend,
 } from "@/server/transactions.functions";
 import { getBudgets } from "@/server/budgets.functions";
 import { getDebts } from "@/server/debts.functions";
 import { getGoals } from "@/server/goals.functions";
 import { resetAndSeed } from "@/server/seed.functions";
+import { ExpensesPieChart } from "@/components/charts/ExpensesPieChart";
+import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [accounts, transactions, monthSummary, budgets, debts, goals] =
-      await Promise.all([
-        getAccounts(),
-        getTransactions(),
-        getMonthSummary(),
-        getBudgets(),
-        getDebts(),
-        getGoals(),
-      ]);
-    return { accounts, transactions, monthSummary, budgets, debts, goals };
+    const [
+      accounts,
+      transactions,
+      monthSummary,
+      budgets,
+      debts,
+      goals,
+      expensesByCategory,
+      monthlyTrend,
+    ] = await Promise.all([
+      getAccounts(),
+      getTransactions(),
+      getMonthSummary(),
+      getBudgets(),
+      getDebts(),
+      getGoals(),
+      getExpensesByCategory(),
+      getMonthlyTrend(),
+    ]);
+    return {
+      accounts,
+      transactions,
+      monthSummary,
+      budgets,
+      debts,
+      goals,
+      expensesByCategory,
+      monthlyTrend,
+    };
   },
   component: Dashboard,
 });
@@ -33,8 +56,16 @@ const formatCOP = (n: number | string) =>
   }).format(Number(n));
 
 function Dashboard() {
-  const { accounts, transactions, monthSummary, budgets, debts, goals } =
-    Route.useLoaderData();
+  const {
+    accounts,
+    transactions,
+    monthSummary,
+    budgets,
+    debts,
+    goals,
+    expensesByCategory,
+    monthlyTrend,
+  } = Route.useLoaderData();
   const router = useRouter();
 
   const netWorth = accounts.reduce((sum, a) => sum + parseFloat(a.balance), 0);
@@ -106,6 +137,18 @@ function Dashboard() {
           </h3>
           <div className="mt-2 text-3xl font-bold">{formatCOP(expense)}</div>
           <p className="mt-1 text-xs text-muted-foreground">Febrero 2026</p>
+        </div>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid gap-6 lg:grid-cols-2 mt-2">
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">Ingresos vs Gastos</h2>
+          <MonthlyTrendChart data={monthlyTrend} />
+        </div>
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">Gastos por Categoría</h2>
+          <ExpensesPieChart data={expensesByCategory} />
         </div>
       </div>
 
