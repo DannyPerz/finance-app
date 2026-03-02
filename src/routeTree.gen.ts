@@ -11,11 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as RecurringRouteImport } from './routes/recurring'
-import { Route as GoalsRouteImport } from './routes/goals'
-import { Route as DebtsRouteImport } from './routes/debts'
-import { Route as BudgetsRouteImport } from './routes/budgets'
-import { Route as AccountsRouteImport } from './routes/accounts'
+import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TransactionsRoute = TransactionsRouteImport.update({
@@ -28,29 +24,9 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RecurringRoute = RecurringRouteImport.update({
-  id: '/recurring',
-  path: '/recurring',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GoalsRoute = GoalsRouteImport.update({
-  id: '/goals',
-  path: '/goals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DebtsRoute = DebtsRouteImport.update({
-  id: '/debts',
-  path: '/debts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BudgetsRoute = BudgetsRouteImport.update({
-  id: '/budgets',
-  path: '/budgets',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountsRoute = AccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,75 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/accounts': typeof AccountsRoute
-  '/budgets': typeof BudgetsRoute
-  '/debts': typeof DebtsRoute
-  '/goals': typeof GoalsRoute
-  '/recurring': typeof RecurringRoute
+  '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/accounts': typeof AccountsRoute
-  '/budgets': typeof BudgetsRoute
-  '/debts': typeof DebtsRoute
-  '/goals': typeof GoalsRoute
-  '/recurring': typeof RecurringRoute
+  '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/accounts': typeof AccountsRoute
-  '/budgets': typeof BudgetsRoute
-  '/debts': typeof DebtsRoute
-  '/goals': typeof GoalsRoute
-  '/recurring': typeof RecurringRoute
+  '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/accounts'
-    | '/budgets'
-    | '/debts'
-    | '/goals'
-    | '/recurring'
-    | '/settings'
-    | '/transactions'
+  fullPaths: '/' | '/categories' | '/settings' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/accounts'
-    | '/budgets'
-    | '/debts'
-    | '/goals'
-    | '/recurring'
-    | '/settings'
-    | '/transactions'
-  id:
-    | '__root__'
-    | '/'
-    | '/accounts'
-    | '/budgets'
-    | '/debts'
-    | '/goals'
-    | '/recurring'
-    | '/settings'
-    | '/transactions'
+  to: '/' | '/categories' | '/settings' | '/transactions'
+  id: '__root__' | '/' | '/categories' | '/settings' | '/transactions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountsRoute: typeof AccountsRoute
-  BudgetsRoute: typeof BudgetsRoute
-  DebtsRoute: typeof DebtsRoute
-  GoalsRoute: typeof GoalsRoute
-  RecurringRoute: typeof RecurringRoute
+  CategoriesRoute: typeof CategoriesRoute
   SettingsRoute: typeof SettingsRoute
   TransactionsRoute: typeof TransactionsRoute
 }
@@ -150,39 +85,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/recurring': {
-      id: '/recurring'
-      path: '/recurring'
-      fullPath: '/recurring'
-      preLoaderRoute: typeof RecurringRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/goals': {
-      id: '/goals'
-      path: '/goals'
-      fullPath: '/goals'
-      preLoaderRoute: typeof GoalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/debts': {
-      id: '/debts'
-      path: '/debts'
-      fullPath: '/debts'
-      preLoaderRoute: typeof DebtsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/budgets': {
-      id: '/budgets'
-      path: '/budgets'
-      fullPath: '/budgets'
-      preLoaderRoute: typeof BudgetsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/accounts': {
-      id: '/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AccountsRouteImport
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -197,11 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountsRoute: AccountsRoute,
-  BudgetsRoute: BudgetsRoute,
-  DebtsRoute: DebtsRoute,
-  GoalsRoute: GoalsRoute,
-  RecurringRoute: RecurringRoute,
+  CategoriesRoute: CategoriesRoute,
   SettingsRoute: SettingsRoute,
   TransactionsRoute: TransactionsRoute,
 }

@@ -1,21 +1,19 @@
-import * as React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
-import { createTransaction } from "@/server/transactions.functions";
 import {
   createTransactionSchema,
   type CreateTransactionInput,
-  transactionTypeValues,
 } from "@/server/schemas";
-
-import { Button } from "@/components/ui/button";
+import { createTransaction } from "@/server/transactions.functions";
+import { Icon } from "@/components/Icon";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -24,7 +22,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,66 +31,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
-interface Props {
-  accounts: { id: string; name: string }[];
-  categories: { id: string; name: string; type: string }[];
+interface Category {
+  id: string;
+  name: string;
+  type: string;
+  icon: string;
 }
 
-const typeLabels: Record<string, string> = {
-  income: "📈 Ingreso",
-  expense: "📉 Gasto",
-  transfer: "↔ Transferencia",
-};
+interface Props {
+  categories: Category[];
+}
 
-export function CreateTransactionModal({ accounts, categories }: Props) {
-  const [open, setOpen] = React.useState(false);
+export function CreateTransactionModal({ categories }: Props) {
+  const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const form = useForm<CreateTransactionInput>({
-    resolver: zodResolver(createTransactionSchema),
+    resolver: zodResolver(createTransactionSchema) as any,
     defaultValues: {
       type: "expense",
       amount: "",
       description: "",
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date().toISOString().split("T")[0],
     },
   });
 
   const selectedType = form.watch("type");
-  const filteredCategories = categories.filter((c) =>
-    selectedType === "income" ? c.type === "income" : c.type === "expense",
-  );
+  const filteredCategories = categories.filter((c) => c.type === selectedType);
 
-  async function onSubmit(values: CreateTransactionInput) {
-    try {
-      await createTransaction({ data: values });
-      setOpen(false);
-      form.reset();
-      router.invalidate();
-    } catch (e) {
-      console.error(e);
-      alert("Error al crear la transacción");
-    }
-  }
+  const onSubmit = async (data: CreateTransactionInput) => {
+    await createTransaction({ data });
+    setOpen(false);
+    form.reset();
+    router.invalidate();
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>+ Nueva Transacción</Button>
+        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+          + Nuevo Movimiento
+        </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Registrar Movimiento</DialogTitle>
-          <DialogDescription>
-            Registra un ingreso, gasto o transferencia.
-          </DialogDescription>
+          <DialogDescription>Registra un ingreso o gasto.</DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 pt-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Type */}
             <FormField
               control={form.control}
               name="type"
@@ -113,18 +103,25 @@ export function CreateTransactionModal({ accounts, categories }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {transactionTypeValues.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {typeLabels[t]}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="expense">
+                        <span className="flex items-center gap-2">
+                          <Icon name="ArrowUpRight" size={14} />
+                          Gasto
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="income">
+                        <span className="flex items-center gap-2">
+                          <Icon name="ArrowDownLeft" size={14} />
+                          Ingreso
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Amount + Date */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -139,11 +136,9 @@ export function CreateTransactionModal({ accounts, categories }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="date"
@@ -153,12 +148,12 @@ export function CreateTransactionModal({ accounts, categories }: Props) {
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
+            {/* Description */}
             <FormField
               control={form.control}
               name="description"
@@ -168,104 +163,41 @@ export function CreateTransactionModal({ accounts, categories }: Props) {
                   <FormControl>
                     <Input placeholder="Ej. Supermercado Éxito" {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="accountId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cuenta</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {accounts.map((a) => (
-                          <SelectItem key={a.id} value={a.id}>
-                            {a.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Category */}
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoría</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filteredCategories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          <span className="flex items-center gap-2">
+                            <Icon name={cat.icon} size={14} />
+                            {cat.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoría</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {filteredCategories.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {selectedType === "transfer" && (
-              <FormField
-                control={form.control}
-                name="transferToAccountId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cuenta Destino</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {accounts.map((a) => (
-                          <SelectItem key={a.id} value={a.id}>
-                            {a.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            <div className="pt-4">
-              <Button type="submit" className="w-full">
-                Guardar Transacción
-              </Button>
-            </div>
+            <Button type="submit" className="w-full">
+              Guardar Movimiento
+            </Button>
           </form>
         </Form>
       </DialogContent>

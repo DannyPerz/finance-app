@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
-import { transactions, accounts, categories } from "@/db/schema";
+import { transactions, categories } from "@/db/schema";
 import { eq, desc, sql, and, gte, lte } from "drizzle-orm";
 import { createTransactionSchema } from "./schemas";
 
 const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+
+// ─── List Transactions ───────────────────────────────────
 
 export const getTransactions = createServerFn().handler(async () => {
   const result = await db
@@ -15,18 +17,18 @@ export const getTransactions = createServerFn().handler(async () => {
       description: transactions.description,
       date: transactions.date,
       createdAt: transactions.createdAt,
-      accountName: accounts.name,
       categoryName: categories.name,
       categoryIcon: categories.icon,
     })
     .from(transactions)
-    .leftJoin(accounts, eq(transactions.accountId, accounts.id))
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .where(eq(transactions.userId, TEMP_USER_ID))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(50);
   return result;
 });
+
+// ─── Create Transaction ──────────────────────────────────
 
 export const createTransaction = createServerFn({ method: "POST" })
   .inputValidator(createTransactionSchema)
@@ -35,49 +37,17 @@ export const createTransaction = createServerFn({ method: "POST" })
       .insert(transactions)
       .values({
         userId: TEMP_USER_ID,
-        accountId: data.accountId,
         categoryId: data.categoryId,
-        debtId: data.debtId,
         type: data.type,
         amount: data.amount,
         description: data.description,
         date: data.date,
-        transferToAccountId: data.transferToAccountId,
       })
       .returning();
-
-    // Update account balance
-    if (data.type === "income") {
-      await db
-        .update(accounts)
-        .set({
-          balance: sql`${accounts.balance}::numeric + ${data.amount}::numeric`,
-        })
-        .where(eq(accounts.id, data.accountId));
-    } else if (data.type === "expense") {
-      await db
-        .update(accounts)
-        .set({
-          balance: sql`${accounts.balance}::numeric - ${data.amount}::numeric`,
-        })
-        .where(eq(accounts.id, data.accountId));
-    } else if (data.type === "transfer" && data.transferToAccountId) {
-      await db
-        .update(accounts)
-        .set({
-          balance: sql`${accounts.balance}::numeric - ${data.amount}::numeric`,
-        })
-        .where(eq(accounts.id, data.accountId));
-      await db
-        .update(accounts)
-        .set({
-          balance: sql`${accounts.balance}::numeric + ${data.amount}::numeric`,
-        })
-        .where(eq(accounts.id, data.transferToAccountId));
-    }
-
     return newTx;
   });
+
+// ─── Month Summary ───────────────────────────────────────
 
 export const getMonthSummary = createServerFn().handler(async () => {
   const now = new Date();
@@ -105,7 +75,8 @@ export const getMonthSummary = createServerFn().handler(async () => {
   return { income, expense };
 });
 
-// Chart data: expenses grouped by category for current month
+// ─── Expenses by Category (Pie Chart) ────────────────────
+
 export const getExpensesByCategory = createServerFn().handler(async () => {
   const now = new Date();
   const firstDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
@@ -134,7 +105,8 @@ export const getExpensesByCategory = createServerFn().handler(async () => {
   }));
 });
 
-// Chart data: monthly income vs expense for last 6 months
+// ─── Monthly Trend (Bar Chart) ───────────────────────────
+
 export const getMonthlyTrend = createServerFn().handler(async () => {
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
@@ -159,7 +131,6 @@ export const getMonthlyTrend = createServerFn().handler(async () => {
     )
     .orderBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`);
 
-  // Pivot into { month, income, expense } rows
   const monthMap = new Map<
     string,
     { month: string; income: number; expense: number }
@@ -180,7 +151,6 @@ export const getMonthlyTrend = createServerFn().handler(async () => {
   ];
 
   for (const row of result) {
-    if (row.type === "transfer") continue;
     if (!monthMap.has(row.month)) {
       const [, m] = row.month.split("-");
       monthMap.set(row.month, {

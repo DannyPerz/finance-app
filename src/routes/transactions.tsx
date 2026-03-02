@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Icon } from "@/components/Icon";
 import { getTransactions } from "@/server/transactions.functions";
-import { getAccounts } from "@/server/accounts.functions";
 import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
 
 export const Route = createFileRoute("/transactions")({
   loader: async () => {
-    const [transactions, accounts, categories] = await Promise.all([
+    const [transactions, categories] = await Promise.all([
       getTransactions(),
-      getAccounts(),
       getCategories(),
     ]);
-    return { transactions, accounts, categories };
+    return { transactions, categories };
   },
   component: TransactionsPage,
 });
@@ -24,56 +23,55 @@ const formatCOP = (n: string) =>
   }).format(parseFloat(n));
 
 function TransactionsPage() {
-  const { transactions, accounts, categories } = Route.useLoaderData();
+  const { transactions, categories } = Route.useLoaderData();
 
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Transacciones</h1>
-          <p className="text-muted-foreground">
-            Historial de movimientos financieros.
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Movimientos
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Historial de ingresos y gastos.
           </p>
         </div>
-        <CreateTransactionModal accounts={accounts} categories={categories} />
+        <CreateTransactionModal categories={categories} />
       </div>
 
       {transactions.length === 0 ? (
         <div className="glass rounded-xl p-10 text-center border-dashed">
           <p className="text-muted-foreground">
-            No hay transacciones registradas.
+            No hay movimientos registrados.
           </p>
         </div>
       ) : (
-        <div className="glass rounded-xl p-6 shadow-sm">
-          <div className="space-y-4">
+        <div className="glass rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="space-y-2">
             {transactions.map((tx) => (
               <div
                 key={tx.id}
-                className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                className="flex items-center justify-between py-2.5 border-b border-border/50 last:border-0"
               >
-                <div>
-                  <p className="font-medium">
-                    {tx.description || "Sin descripción"}
-                  </p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor:
-                          tx.type === "income"
-                            ? "var(--primary)"
-                            : tx.type === "expense"
-                              ? "var(--destructive)"
-                              : "var(--ring)",
-                      }}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
+                    <Icon
+                      name={tx.categoryIcon || "Circle"}
+                      size={16}
+                      className="text-muted-foreground"
                     />
-                    {tx.categoryName || "Sin categoría"} • {tx.accountName} •{" "}
-                    {tx.date}
-                  </p>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">
+                      {tx.description || "Sin descripción"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {tx.categoryName || "Sin categoría"} • {tx.date}
+                    </p>
+                  </div>
                 </div>
                 <div
-                  className={`font-semibold ${tx.type === "income" ? "text-primary" : ""}`}
+                  className={`font-semibold shrink-0 ml-3 ${tx.type === "income" ? "text-primary" : ""}`}
                 >
                   {tx.type === "income" ? "+" : "-"}
                   {formatCOP(tx.amount)}
