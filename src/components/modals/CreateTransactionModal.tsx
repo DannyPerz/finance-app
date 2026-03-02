@@ -205,6 +205,71 @@ export function CreateTransactionModal({ categories }: Props) {
               )}
             />
 
+            {/* Recurring */}
+            <FormField
+              control={form.control}
+              name="isRecurring"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Movimiento recurrente</FormLabel>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange(!field.value)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        field.value ? "bg-primary" : "bg-muted"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+                          field.value ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {form.watch("isRecurring") && (
+              <FormField
+                control={form.control}
+                name="recurrence"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Frecuencia</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona frecuencia" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="weekly">
+                          <span className="flex items-center gap-2">
+                            <Icon name="CalendarDays" size={14} />
+                            Semanal
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="biweekly">
+                          <span className="flex items-center gap-2">
+                            <Icon name="CalendarDays" size={14} />
+                            Quincenal
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="monthly">
+                          <span className="flex items-center gap-2">
+                            <Icon name="CalendarDays" size={14} />
+                            Mensual
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            )}
+
             <Button type="submit" className="w-full">
               Guardar Movimiento
             </Button>

@@ -18,6 +18,12 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
 
 export const categoryTypeEnum = pgEnum("category_type", ["income", "expense"]);
 
+export const recurrenceEnum = pgEnum("recurrence_type", [
+  "weekly",
+  "biweekly",
+  "monthly",
+]);
+
 // ─── Users ───────────────────────────────────────────────
 
 export const users = pgTable("users", {
@@ -62,6 +68,8 @@ export const transactions = pgTable("transactions", {
   amount: numeric("amount", { precision: 18, scale: 2 }).notNull(),
   description: text("description"),
   date: date("date").notNull(),
+  isRecurring: boolean("is_recurring").notNull().default(false),
+  recurrence: recurrenceEnum("recurrence"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -8,7 +8,7 @@ import {
 } from "@/server/transactions.functions";
 import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
-import { Pencil, Trash2, Check, X, Download } from "lucide-react";
+import { Pencil, Trash2, Check, X, Download, Repeat } from "lucide-react";
 
 export const Route = createFileRoute("/transactions")({
   loader: async () => {
@@ -42,6 +42,8 @@ interface Transaction {
   categoryId: string | null;
   categoryName: string | null;
   categoryIcon: string | null;
+  isRecurring: boolean;
+  recurrence: "weekly" | "biweekly" | "monthly" | null;
 }
 
 interface Category {
@@ -209,8 +211,18 @@ function TransactionRow({
           <p className="font-medium truncate">
             {tx.description || "Sin descripción"}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
             {tx.categoryName || "Sin categoría"} • {tx.date}
+            {tx.isRecurring && (
+              <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                <Repeat size={10} />
+                {tx.recurrence === "weekly"
+                  ? "Semanal"
+                  : tx.recurrence === "biweekly"
+                    ? "Quincenal"
+                    : "Mensual"}
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -251,23 +263,7 @@ function TransactionsPage() {
   );
 
   const handleExportCSV = () => {
-    const header = "Tipo,Monto,Descripción,Categoría,Fecha\n";
-    const rows = filtered
-      .map(
-        (tx) =>
-          `${tx.type === "income" ? "Ingreso" : "Gasto"},${tx.amount},"${(tx.description || "").replace(/"/g, '""')}","${tx.categoryName || ""}",${tx.date}`,
-      )
-      .join("\n");
-    const csv = header + rows;
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `finova_movimientos_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    window.open("/api/export-csv", "_blank");
   };
 
   return (

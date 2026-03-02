@@ -13,6 +13,7 @@ import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
 
 const TransactionsRoute = TransactionsRouteImport.update({
   id: '/transactions',
@@ -34,18 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
+  id: '/api/export-csv',
+  path: '/api/export-csv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
+  '/api/export-csv': typeof ApiExportCsvRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
+  '/api/export-csv': typeof ApiExportCsvRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,25 @@ export interface FileRoutesById {
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
   '/transactions': typeof TransactionsRoute
+  '/api/export-csv': typeof ApiExportCsvRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/categories' | '/settings' | '/transactions'
+  fullPaths:
+    | '/'
+    | '/categories'
+    | '/settings'
+    | '/transactions'
+    | '/api/export-csv'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categories' | '/settings' | '/transactions'
-  id: '__root__' | '/' | '/categories' | '/settings' | '/transactions'
+  to: '/' | '/categories' | '/settings' | '/transactions' | '/api/export-csv'
+  id:
+    | '__root__'
+    | '/'
+    | '/categories'
+    | '/settings'
+    | '/transactions'
+    | '/api/export-csv'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +87,7 @@ export interface RootRouteChildren {
   CategoriesRoute: typeof CategoriesRoute
   SettingsRoute: typeof SettingsRoute
   TransactionsRoute: typeof TransactionsRoute
+  ApiExportCsvRoute: typeof ApiExportCsvRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/export-csv': {
+      id: '/api/export-csv'
+      path: '/api/export-csv'
+      fullPath: '/api/export-csv'
+      preLoaderRoute: typeof ApiExportCsvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +135,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriesRoute: CategoriesRoute,
   SettingsRoute: SettingsRoute,
   TransactionsRoute: TransactionsRoute,
+  ApiExportCsvRoute: ApiExportCsvRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

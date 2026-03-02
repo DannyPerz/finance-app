@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const transactionTypeValues = ["income", "expense"] as const;
 export const categoryTypeValues = ["income", "expense"] as const;
+export const recurrenceValues = ["weekly", "biweekly", "monthly"] as const;
 
 // ─── Transaction Schemas ─────────────────────────────────
 
@@ -13,6 +14,8 @@ export const createTransactionSchema = z.object({
   amount: z.string().min(1, "El monto es requerido"),
   description: z.string().optional(),
   date: z.string().min(1, "La fecha es requerida"),
+  isRecurring: z.boolean().optional().default(false),
+  recurrence: z.enum(recurrenceValues).optional(),
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
@@ -24,6 +27,8 @@ export const updateTransactionSchema = z.object({
   amount: z.string().min(1, "El monto es requerido"),
   description: z.string().optional(),
   date: z.string().min(1, "La fecha es requerida"),
+  isRecurring: z.boolean().optional().default(false),
+  recurrence: z.enum(recurrenceValues).optional(),
 });
 
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;

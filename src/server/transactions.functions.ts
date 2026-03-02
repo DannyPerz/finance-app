@@ -21,6 +21,8 @@ export const getTransactions = createServerFn().handler(async () => {
       description: transactions.description,
       date: transactions.date,
       categoryId: transactions.categoryId,
+      isRecurring: transactions.isRecurring,
+      recurrence: transactions.recurrence,
       createdAt: transactions.createdAt,
       categoryName: categories.name,
       categoryIcon: categories.icon,
@@ -46,6 +48,8 @@ export const createTransaction = createServerFn({ method: "POST" })
         amount: data.amount,
         description: data.description,
         date: data.date,
+        isRecurring: data.isRecurring || false,
+        recurrence: data.isRecurring ? data.recurrence : null,
       })
       .returning();
     return newTx;
@@ -64,6 +68,8 @@ export const updateTransaction = createServerFn({ method: "POST" })
         amount: data.amount,
         description: data.description,
         date: data.date,
+        isRecurring: data.isRecurring || false,
+        recurrence: data.isRecurring ? data.recurrence : null,
       })
       .where(
         and(
