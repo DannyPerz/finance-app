@@ -29,6 +29,7 @@ export const createCategory = createServerFn({ method: "POST" })
         name: data.name,
         icon: data.icon,
         type: data.type,
+        budget: data.budget || null,
       })
       .returning();
     return newCat;
@@ -43,6 +44,7 @@ export const updateCategory = createServerFn({ method: "POST" })
         name: data.name,
         icon: data.icon,
         type: data.type,
+        budget: data.budget || null,
       })
       .where(
         and(eq(categories.id, data.id), eq(categories.userId, TEMP_USER_ID)),

@@ -19,13 +19,27 @@ interface Category {
   name: string;
   icon: string;
   type: "income" | "expense";
+  budget: string | null;
 }
+
+const formatBudget = (val: string) => {
+  const digits = val.replace(/\D/g, "");
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const formatCOP = (n: number) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 function CategoryRow({ cat }: { cat: Category }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(cat.name);
   const [icon, setIcon] = useState(cat.icon);
+  const [budget, setBudget] = useState(cat.budget || "");
   const [showIcons, setShowIcons] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -34,7 +48,13 @@ function CategoryRow({ cat }: { cat: Category }) {
   const handleSave = async () => {
     if (!name.trim()) return;
     await updateCategory({
-      data: { id: cat.id, name: name.trim(), icon, type: cat.type },
+      data: {
+        id: cat.id,
+        name: name.trim(),
+        icon,
+        type: cat.type,
+        budget: budget || undefined,
+      },
     });
     setEditing(false);
     setShowIcons(false);
@@ -49,6 +69,7 @@ function CategoryRow({ cat }: { cat: Category }) {
   const handleCancel = () => {
     setName(cat.name);
     setIcon(cat.icon);
+    setBudget(cat.budget || "");
     setEditing(false);
     setShowIcons(false);
     setDeleting(false);
@@ -112,6 +133,13 @@ function CategoryRow({ cat }: { cat: Category }) {
             className="flex-1 min-w-0 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
             autoFocus
           />
+          <input
+            value={formatBudget(budget)}
+            onChange={(e) => setBudget(e.target.value.replace(/\D/g, ""))}
+            placeholder="Presupuesto"
+            inputMode="numeric"
+            className="w-28 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+          />
           <button
             onClick={handleSave}
             className="rounded-md p-1.5 text-primary transition-colors hover:bg-primary/10"
@@ -167,7 +195,14 @@ function CategoryRow({ cat }: { cat: Category }) {
             className={isIncome ? "text-primary" : "text-muted-foreground"}
           />
         </div>
-        <span className="font-medium">{cat.name}</span>
+        <div className="min-w-0">
+          <span className="font-medium">{cat.name}</span>
+          {cat.budget && (
+            <p className="text-xs text-muted-foreground">
+              Presupuesto: {formatCOP(parseFloat(cat.budget))}
+            </p>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
         <button

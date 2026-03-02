@@ -67,7 +67,6 @@ function Dashboard() {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (
@@ -157,7 +156,6 @@ function Dashboard() {
   }, [monthTransactions]);
 
   const monthlyTrend = useMemo(() => {
-    // 6 months ending at selected month
     const months: {
       key: string;
       label: string;
@@ -174,7 +172,6 @@ function Dashboard() {
       const key = `${y}-${String(m + 1).padStart(2, "0")}`;
       months.push({ key, label: MONTH_SHORT[m], income: 0, expense: 0 });
     }
-
     for (const tx of transactions) {
       const d = new Date(tx.date + "T00:00:00");
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -184,12 +181,85 @@ function Dashboard() {
       if (tx.type === "income") entry.income += amount;
       else entry.expense += amount;
     }
-
     return months.map(({ label, income, expense }) => ({
       month: label,
       income,
       expense,
     }));
+  }, [transactions, selectedMonth, selectedYear]);
+
+  // ─── Budget Progress ──────────────────────────────────
+  const budgetProgress = useMemo(() => {
+    const expenseCats = categories.filter(
+      (c) => c.type === "expense" && c.budget && parseFloat(c.budget) > 0,
+    );
+    if (expenseCats.length === 0) return [];
+
+    return expenseCats
+      .map((cat) => {
+        const budgetAmount = parseFloat(cat.budget!);
+        let spent = 0;
+        for (const tx of transactions) {
+          if (tx.type !== "expense" || tx.categoryName !== cat.name) continue;
+          const d = new Date(tx.date + "T00:00:00");
+          if (
+            d.getMonth() === selectedMonth &&
+            d.getFullYear() === selectedYear
+          ) {
+            spent += parseFloat(tx.amount);
+          }
+        }
+        const pct =
+          budgetAmount > 0 ? Math.round((spent / budgetAmount) * 100) : 0;
+        return {
+          name: cat.name,
+          icon: cat.icon,
+          budget: budgetAmount,
+          spent,
+          pct,
+        };
+      })
+      .sort((a, b) => b.pct - a.pct);
+  }, [categories, transactions, selectedMonth, selectedYear]);
+
+  // ─── Comparative Summary (vs previous month) ──────────
+  const comparison = useMemo(() => {
+    let prevMonth = selectedMonth - 1;
+    let prevYear = selectedYear;
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevYear--;
+    }
+
+    let curIncome = 0,
+      curExpense = 0,
+      prevIncome = 0,
+      prevExpense = 0;
+    for (const tx of transactions) {
+      const d = new Date(tx.date + "T00:00:00");
+      const m = d.getMonth(),
+        y = d.getFullYear();
+      const amount = parseFloat(tx.amount);
+      if (m === selectedMonth && y === selectedYear) {
+        if (tx.type === "income") curIncome += amount;
+        else curExpense += amount;
+      }
+      if (m === prevMonth && y === prevYear) {
+        if (tx.type === "income") prevIncome += amount;
+        else prevExpense += amount;
+      }
+    }
+
+    const expDiff =
+      prevExpense > 0
+        ? Math.round(((curExpense - prevExpense) / prevExpense) * 100)
+        : null;
+    const incDiff =
+      prevIncome > 0
+        ? Math.round(((curIncome - prevIncome) / prevIncome) * 100)
+        : null;
+
+    return { expDiff, incDiff, prevMonth, prevYear };
   }, [transactions, selectedMonth, selectedYear]);
 
   const isEmpty = transactions.length === 0;
@@ -216,7 +286,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Month Selector + Category Filter */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -255,7 +325,6 @@ function Dashboard() {
               className={`text-muted-foreground transition-transform ${categoryDropdownOpen ? "rotate-180" : ""}`}
             />
           </button>
-
           {categoryDropdownOpen && (
             <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-border bg-background shadow-lg py-1 max-h-72 overflow-y-auto">
               {selectedCategoryIds.size > 0 && (
@@ -266,7 +335,6 @@ function Dashboard() {
                   ✕ Limpiar filtro
                 </button>
               )}
-
               <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Ingresos
               </p>
@@ -291,7 +359,6 @@ function Dashboard() {
                     {c.name}
                   </label>
                 ))}
-
               <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1">
                 Gastos
               </p>
@@ -321,7 +388,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Metric Row */}
+      {/* Metrics */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
         <div className="glass rounded-xl p-5 sm:p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground">
@@ -330,12 +397,30 @@ function Dashboard() {
           <div className="mt-2 text-2xl sm:text-3xl font-bold text-primary">
             {formatCOP(income)}
           </div>
+          {comparison.incDiff !== null && (
+            <p
+              className={`text-xs mt-1 ${comparison.incDiff >= 0 ? "text-primary" : "text-destructive"}`}
+            >
+              {comparison.incDiff >= 0 ? "↑" : "↓"}{" "}
+              {Math.abs(comparison.incDiff)}% vs{" "}
+              {MONTH_SHORT[comparison.prevMonth]}
+            </p>
+          )}
         </div>
         <div className="glass rounded-xl p-5 sm:p-6 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground">Gastos</h3>
           <div className="mt-2 text-2xl sm:text-3xl font-bold">
             {formatCOP(expense)}
           </div>
+          {comparison.expDiff !== null && (
+            <p
+              className={`text-xs mt-1 ${comparison.expDiff <= 0 ? "text-primary" : "text-destructive"}`}
+            >
+              {comparison.expDiff >= 0 ? "↑" : "↓"}{" "}
+              {Math.abs(comparison.expDiff)}% vs{" "}
+              {MONTH_SHORT[comparison.prevMonth]}
+            </p>
+          )}
         </div>
         <div
           className={`glass rounded-xl p-5 sm:p-6 shadow-sm border ${balance >= 0 ? "border-primary/20 bg-linear-to-br from-background to-primary/5" : "border-destructive/20 bg-linear-to-br from-background to-destructive/5"}`}
@@ -350,7 +435,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Charts Row */}
+      {/* Charts */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <div className="glass rounded-xl p-6 shadow-sm">
           <h2 className="text-lg sm:text-xl font-semibold mb-4">
@@ -366,7 +451,55 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Budget Progress */}
+      {budgetProgress.length > 0 && (
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">
+            Presupuestos
+          </h2>
+          <div className="space-y-4">
+            {budgetProgress.map((bp) => (
+              <div key={bp.name} className="space-y-1.5">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Icon
+                      name={bp.icon}
+                      size={14}
+                      className="text-muted-foreground"
+                    />
+                    <span className="font-medium">{bp.name}</span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    {formatCOP(bp.spent)} / {formatCOP(bp.budget)}
+                  </span>
+                </div>
+                <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      bp.pct > 100
+                        ? "bg-destructive"
+                        : bp.pct >= 80
+                          ? "bg-amber-500"
+                          : "bg-primary"
+                    }`}
+                    style={{ width: `${Math.min(bp.pct, 100)}%` }}
+                  />
+                </div>
+                <p
+                  className={`text-xs ${bp.pct > 100 ? "text-destructive font-medium" : bp.pct >= 80 ? "text-amber-500" : "text-muted-foreground"}`}
+                >
+                  {bp.pct}% usado
+                  {bp.pct > 100 && " — ¡Límite superado!"}
+                  {bp.pct === 100 && " — Presupuesto agotado"}
+                  {bp.pct >= 80 && bp.pct < 100 && " — Cerca del límite"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Activity */}
       <div className="glass rounded-xl p-6 shadow-sm">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">
           Actividad — {MONTH_NAMES[selectedMonth]}

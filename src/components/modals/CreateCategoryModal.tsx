@@ -43,8 +43,14 @@ export function CreateCategoryModal() {
       name: "",
       icon: "Package",
       type: "expense",
+      budget: "",
     },
   });
+
+  const formatWithDots = (val: string) => {
+    const digits = val.replace(/\D/g, "");
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   const onSubmit = async (data: CreateCategoryInput) => {
     await createCategory({ data });
@@ -84,40 +90,63 @@ export function CreateCategoryModal() {
               )}
             />
 
-            {/* Type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+            {/* Type + Budget */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="expense">
+                          <span className="flex items-center gap-2">
+                            <Icon name="ArrowUpRight" size={14} />
+                            Gasto
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="income">
+                          <span className="flex items-center gap-2">
+                            <Icon name="ArrowDownLeft" size={14} />
+                            Ingreso
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Presupuesto</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <Input
+                        inputMode="numeric"
+                        placeholder="Ej. 500.000"
+                        value={formatWithDots(field.value || "")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          field.onChange(raw);
+                        }}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="expense">
-                        <span className="flex items-center gap-2">
-                          <Icon name="ArrowUpRight" size={14} />
-                          Gasto
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="income">
-                        <span className="flex items-center gap-2">
-                          <Icon name="ArrowDownLeft" size={14} />
-                          Ingreso
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Icon Picker */}
             <FormField

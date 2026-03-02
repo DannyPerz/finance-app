@@ -41,6 +41,7 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   icon: text("icon").notNull().default("circle"),
   type: categoryTypeEnum("type").notNull(),
+  budget: numeric("budget", { precision: 18, scale: 2 }),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
