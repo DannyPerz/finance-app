@@ -126,18 +126,28 @@ export function CreateTransactionModal({ categories }: Props) {
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Monto (COP)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ej. 150000"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const formatWithDots = (val: string) => {
+                    const digits = val.replace(/\D/g, "");
+                    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                  };
+                  return (
+                    <FormItem>
+                      <FormLabel>Monto (COP)</FormLabel>
+                      <FormControl>
+                        <Input
+                          inputMode="numeric"
+                          placeholder="Ej. 1.500.000"
+                          value={formatWithDots(field.value || "")}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/\D/g, "");
+                            field.onChange(raw);
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
               />
               <FormField
                 control={form.control}

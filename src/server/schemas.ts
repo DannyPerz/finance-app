@@ -26,3 +26,16 @@ export const createCategorySchema = z.object({
 });
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+
+export const updateCategorySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "El nombre es requerido"),
+  icon: z.string(),
+  type: z.enum(categoryTypeValues),
+});
+
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+
+export const deleteCategorySchema = z.object({
+  id: z.string().uuid(),
+});
