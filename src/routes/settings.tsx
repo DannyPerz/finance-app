@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTheme } from "@/components/ThemeProvider";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
 function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -28,7 +31,7 @@ function SettingsPage() {
               <option>EUR - Euro</option>
             </select>
           </div>
-          <div className="flex items-center justify-between py-2">
+          <div className="flex items-center justify-between py-2 border-b border-border/50">
             <div>
               <p className="font-medium">Formato de Fecha</p>
               <p className="text-xs text-muted-foreground">
@@ -39,6 +42,23 @@ function SettingsPage() {
               <option>DD/MM/YYYY</option>
               <option>MM/DD/YYYY</option>
               <option>YYYY-MM-DD</option>
+            </select>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="font-medium">Apariencia</p>
+              <p className="text-xs text-muted-foreground">
+                Tema visual de la aplicación
+              </p>
+            </div>
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as any)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="light">Claro</option>
+              <option value="dark">Oscuro</option>
+              <option value="auto">Sistema (Automático)</option>
             </select>
           </div>
         </div>

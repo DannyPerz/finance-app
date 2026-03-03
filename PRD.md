@@ -83,11 +83,7 @@ Widget tipo "Este mes gastaste 15% más/menos que el anterior en [categoría]". 
 
 Marcar un movimiento como recurrente (ej: arriendo cada mes). Toggle en el formulario + recordatorio visual.
 
-#### 6. Tags/Notas
-
-Tags libres en transacciones para búsqueda rápida (ej: "vacaciones", "emergencia"). Campo simple de texto.
-
-#### 7. Persistencia de tema
+#### 6. Persistencia de tema
 
 Guardar preferencia dark/light en localStorage para que persista entre sesiones.
 
