@@ -61,3 +61,16 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export const deleteCategorySchema = z.object({
   id: z.string().uuid(),
 });
+
+// ─── Work Suite Schemas ──────────────────────────────────
+
+export const createWorkMemberSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  role: z.string().min(1, "El rol es requerido"),
+  seniority: z.string().min(1, "El seniority es requerido"),
+  contractType: z.string().min(1, "El tipo de contrato es requerido"),
+  startDate: z.string().min(1, "La fecha de inicio es requerida"),
+  netSalary: z.string().min(1, "El salario neto es requerido"),
+});
+
+export type CreateWorkMemberInput = z.infer<typeof createWorkMemberSchema>;

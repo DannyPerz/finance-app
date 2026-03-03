@@ -9,14 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkRouteImport } from './routes/work'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkIndexRouteImport } from './routes/work/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as WorkReportsRouteImport } from './routes/work/reports'
+import { Route as WorkPayrollsRouteImport } from './routes/work/payrolls'
+import { Route as WorkOpsRouteImport } from './routes/work/ops'
 import { Route as FinanceTransactionsRouteImport } from './routes/finance/transactions'
 import { Route as FinanceSettingsRouteImport } from './routes/finance/settings'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as ApiSeedWorkRouteImport } from './routes/api/seed-work'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
 
+const WorkRoute = WorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FinanceRoute = FinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
@@ -27,10 +38,30 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkIndexRoute = WorkIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkRoute,
+} as any)
 const FinanceIndexRoute = FinanceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FinanceRoute,
+} as any)
+const WorkReportsRoute = WorkReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => WorkRoute,
+} as any)
+const WorkPayrollsRoute = WorkPayrollsRouteImport.update({
+  id: '/payrolls',
+  path: '/payrolls',
+  getParentRoute: () => WorkRoute,
+} as any)
+const WorkOpsRoute = WorkOpsRouteImport.update({
+  id: '/ops',
+  path: '/ops',
+  getParentRoute: () => WorkRoute,
 } as any)
 const FinanceTransactionsRoute = FinanceTransactionsRouteImport.update({
   id: '/transactions',
@@ -47,6 +78,11 @@ const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => FinanceRoute,
 } as any)
+const ApiSeedWorkRoute = ApiSeedWorkRouteImport.update({
+  id: '/api/seed-work',
+  path: '/api/seed-work',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
   id: '/api/export-csv',
   path: '/api/export-csv',
@@ -56,67 +92,110 @@ const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/finance': typeof FinanceRouteWithChildren
+  '/work': typeof WorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
+  '/work/ops': typeof WorkOpsRoute
+  '/work/payrolls': typeof WorkPayrollsRoute
+  '/work/reports': typeof WorkReportsRoute
   '/finance/': typeof FinanceIndexRoute
+  '/work/': typeof WorkIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
+  '/work/ops': typeof WorkOpsRoute
+  '/work/payrolls': typeof WorkPayrollsRoute
+  '/work/reports': typeof WorkReportsRoute
   '/finance': typeof FinanceIndexRoute
+  '/work': typeof WorkIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/finance': typeof FinanceRouteWithChildren
+  '/work': typeof WorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
+  '/work/ops': typeof WorkOpsRoute
+  '/work/payrolls': typeof WorkPayrollsRoute
+  '/work/reports': typeof WorkReportsRoute
   '/finance/': typeof FinanceIndexRoute
+  '/work/': typeof WorkIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/finance'
+    | '/work'
     | '/api/export-csv'
+    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
+    | '/work/ops'
+    | '/work/payrolls'
+    | '/work/reports'
     | '/finance/'
+    | '/work/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/api/export-csv'
+    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
+    | '/work/ops'
+    | '/work/payrolls'
+    | '/work/reports'
     | '/finance'
+    | '/work'
   id:
     | '__root__'
     | '/'
     | '/finance'
+    | '/work'
     | '/api/export-csv'
+    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
+    | '/work/ops'
+    | '/work/payrolls'
+    | '/work/reports'
     | '/finance/'
+    | '/work/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FinanceRoute: typeof FinanceRouteWithChildren
+  WorkRoute: typeof WorkRouteWithChildren
   ApiExportCsvRoute: typeof ApiExportCsvRoute
+  ApiSeedWorkRoute: typeof ApiSeedWorkRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/work': {
+      id: '/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof WorkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/finance': {
       id: '/finance'
       path: '/finance'
@@ -131,12 +210,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/work/': {
+      id: '/work/'
+      path: '/'
+      fullPath: '/work/'
+      preLoaderRoute: typeof WorkIndexRouteImport
+      parentRoute: typeof WorkRoute
+    }
     '/finance/': {
       id: '/finance/'
       path: '/'
       fullPath: '/finance/'
       preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof FinanceRoute
+    }
+    '/work/reports': {
+      id: '/work/reports'
+      path: '/reports'
+      fullPath: '/work/reports'
+      preLoaderRoute: typeof WorkReportsRouteImport
+      parentRoute: typeof WorkRoute
+    }
+    '/work/payrolls': {
+      id: '/work/payrolls'
+      path: '/payrolls'
+      fullPath: '/work/payrolls'
+      preLoaderRoute: typeof WorkPayrollsRouteImport
+      parentRoute: typeof WorkRoute
+    }
+    '/work/ops': {
+      id: '/work/ops'
+      path: '/ops'
+      fullPath: '/work/ops'
+      preLoaderRoute: typeof WorkOpsRouteImport
+      parentRoute: typeof WorkRoute
     }
     '/finance/transactions': {
       id: '/finance/transactions'
@@ -158,6 +265,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/finance/categories'
       preLoaderRoute: typeof FinanceCategoriesRouteImport
       parentRoute: typeof FinanceRoute
+    }
+    '/api/seed-work': {
+      id: '/api/seed-work'
+      path: '/api/seed-work'
+      fullPath: '/api/seed-work'
+      preLoaderRoute: typeof ApiSeedWorkRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/export-csv': {
       id: '/api/export-csv'
@@ -186,10 +300,28 @@ const FinanceRouteChildren: FinanceRouteChildren = {
 const FinanceRouteWithChildren =
   FinanceRoute._addFileChildren(FinanceRouteChildren)
 
+interface WorkRouteChildren {
+  WorkOpsRoute: typeof WorkOpsRoute
+  WorkPayrollsRoute: typeof WorkPayrollsRoute
+  WorkReportsRoute: typeof WorkReportsRoute
+  WorkIndexRoute: typeof WorkIndexRoute
+}
+
+const WorkRouteChildren: WorkRouteChildren = {
+  WorkOpsRoute: WorkOpsRoute,
+  WorkPayrollsRoute: WorkPayrollsRoute,
+  WorkReportsRoute: WorkReportsRoute,
+  WorkIndexRoute: WorkIndexRoute,
+}
+
+const WorkRouteWithChildren = WorkRoute._addFileChildren(WorkRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FinanceRoute: FinanceRouteWithChildren,
+  WorkRoute: WorkRouteWithChildren,
   ApiExportCsvRoute: ApiExportCsvRoute,
+  ApiSeedWorkRoute: ApiSeedWorkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

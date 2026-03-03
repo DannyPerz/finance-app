@@ -74,3 +74,6 @@ export const transactions = pgTable("transactions", {
     .notNull()
     .defaultNow(),
 });
+
+// ─── Exports from Other Suites ───────────────────────────
+export * from "./schema.work";
