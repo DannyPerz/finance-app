@@ -63,7 +63,7 @@ function TransactionRow({
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [amount, setAmount] = useState(tx.amount);
+  const [amount, setAmount] = useState(tx.amount.split(".")[0]);
   const [description, setDescription] = useState(tx.description || "");
   const [date, setDate] = useState(tx.date);
   const [type, setType] = useState<"income" | "expense">(tx.type);
@@ -90,7 +90,7 @@ function TransactionRow({
   };
 
   const handleCancel = () => {
-    setAmount(tx.amount);
+    setAmount(tx.amount.split(".")[0]);
     setDescription(tx.description || "");
     setDate(tx.date);
     setType(tx.type);

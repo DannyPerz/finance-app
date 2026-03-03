@@ -39,7 +39,9 @@ function CategoryRow({ cat }: { cat: Category }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(cat.name);
   const [icon, setIcon] = useState(cat.icon);
-  const [budget, setBudget] = useState(cat.budget || "");
+  const [budget, setBudget] = useState(
+    cat.budget ? cat.budget.split(".")[0] : "",
+  );
   const [showIcons, setShowIcons] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -69,7 +71,7 @@ function CategoryRow({ cat }: { cat: Category }) {
   const handleCancel = () => {
     setName(cat.name);
     setIcon(cat.icon);
-    setBudget(cat.budget || "");
+    setBudget(cat.budget ? cat.budget.split(".")[0] : "");
     setEditing(false);
     setShowIcons(false);
     setDeleting(false);
