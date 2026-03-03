@@ -9,31 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TransactionsRouteImport } from './routes/transactions'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as FinanceTransactionsRouteImport } from './routes/finance/transactions'
+import { Route as FinanceSettingsRouteImport } from './routes/finance/settings'
+import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
 
-const TransactionsRoute = TransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CategoriesRoute = CategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceIndexRoute = FinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceTransactionsRoute = FinanceTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceSettingsRoute = FinanceSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => FinanceRoute,
 } as any)
 const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
   id: '/api/export-csv',
@@ -43,74 +55,73 @@ const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/categories': typeof CategoriesRoute
-  '/settings': typeof SettingsRoute
-  '/transactions': typeof TransactionsRoute
+  '/finance': typeof FinanceRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/transactions': typeof FinanceTransactionsRoute
+  '/finance/': typeof FinanceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/categories': typeof CategoriesRoute
-  '/settings': typeof SettingsRoute
-  '/transactions': typeof TransactionsRoute
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/transactions': typeof FinanceTransactionsRoute
+  '/finance': typeof FinanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/categories': typeof CategoriesRoute
-  '/settings': typeof SettingsRoute
-  '/transactions': typeof TransactionsRoute
+  '/finance': typeof FinanceRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/finance/categories': typeof FinanceCategoriesRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/transactions': typeof FinanceTransactionsRoute
+  '/finance/': typeof FinanceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/categories'
-    | '/settings'
-    | '/transactions'
+    | '/finance'
     | '/api/export-csv'
+    | '/finance/categories'
+    | '/finance/settings'
+    | '/finance/transactions'
+    | '/finance/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categories' | '/settings' | '/transactions' | '/api/export-csv'
+  to:
+    | '/'
+    | '/api/export-csv'
+    | '/finance/categories'
+    | '/finance/settings'
+    | '/finance/transactions'
+    | '/finance'
   id:
     | '__root__'
     | '/'
-    | '/categories'
-    | '/settings'
-    | '/transactions'
+    | '/finance'
     | '/api/export-csv'
+    | '/finance/categories'
+    | '/finance/settings'
+    | '/finance/transactions'
+    | '/finance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CategoriesRoute: typeof CategoriesRoute
-  SettingsRoute: typeof SettingsRoute
-  TransactionsRoute: typeof TransactionsRoute
+  FinanceRoute: typeof FinanceRouteWithChildren
   ApiExportCsvRoute: typeof ApiExportCsvRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/transactions': {
-      id: '/transactions'
-      path: '/transactions'
-      fullPath: '/transactions'
-      preLoaderRoute: typeof TransactionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/categories': {
-      id: '/categories'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof CategoriesRouteImport
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -119,6 +130,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/finance/': {
+      id: '/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof FinanceIndexRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/transactions': {
+      id: '/finance/transactions'
+      path: '/transactions'
+      fullPath: '/finance/transactions'
+      preLoaderRoute: typeof FinanceTransactionsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/settings': {
+      id: '/finance/settings'
+      path: '/settings'
+      fullPath: '/finance/settings'
+      preLoaderRoute: typeof FinanceSettingsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/categories': {
+      id: '/finance/categories'
+      path: '/categories'
+      fullPath: '/finance/categories'
+      preLoaderRoute: typeof FinanceCategoriesRouteImport
+      parentRoute: typeof FinanceRoute
     }
     '/api/export-csv': {
       id: '/api/export-csv'
@@ -130,11 +169,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface FinanceRouteChildren {
+  FinanceCategoriesRoute: typeof FinanceCategoriesRoute
+  FinanceSettingsRoute: typeof FinanceSettingsRoute
+  FinanceTransactionsRoute: typeof FinanceTransactionsRoute
+  FinanceIndexRoute: typeof FinanceIndexRoute
+}
+
+const FinanceRouteChildren: FinanceRouteChildren = {
+  FinanceCategoriesRoute: FinanceCategoriesRoute,
+  FinanceSettingsRoute: FinanceSettingsRoute,
+  FinanceTransactionsRoute: FinanceTransactionsRoute,
+  FinanceIndexRoute: FinanceIndexRoute,
+}
+
+const FinanceRouteWithChildren =
+  FinanceRoute._addFileChildren(FinanceRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CategoriesRoute: CategoriesRoute,
-  SettingsRoute: SettingsRoute,
-  TransactionsRoute: TransactionsRoute,
+  FinanceRoute: FinanceRouteWithChildren,
   ApiExportCsvRoute: ApiExportCsvRoute,
 }
 export const routeTree = rootRouteImport

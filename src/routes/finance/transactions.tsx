@@ -10,7 +10,7 @@ import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
 import { Pencil, Trash2, Check, X, Download, Repeat } from "lucide-react";
 
-export const Route = createFileRoute("/transactions")({
+export const Route = createFileRoute("/finance/transactions")({
   loader: async () => {
     const [transactions, categories] = await Promise.all([
       getTransactions(),
@@ -193,7 +193,7 @@ function TransactionRow({
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   // Default view

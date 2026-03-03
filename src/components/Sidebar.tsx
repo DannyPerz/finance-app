@@ -2,14 +2,14 @@ import { Link, useMatches } from "@tanstack/react-router";
 import { LayoutDashboard, ArrowLeftRight, Tags, Settings } from "lucide-react";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/transactions", label: "Movimientos", icon: ArrowLeftRight },
-  { to: "/categories", label: "Categorías", icon: Tags },
+  { to: "/finance", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/finance/transactions", label: "Movimientos", icon: ArrowLeftRight },
+  { to: "/finance/categories", label: "Categorías", icon: Tags },
 ] as const;
 
 export default function Sidebar() {
   const matches = useMatches();
-  const currentPath = matches[matches.length - 1]?.fullPath ?? "/";
+  const currentPath = matches[matches.length - 1]?.fullPath ?? "/finance";
 
   return (
     <>
@@ -19,7 +19,9 @@ export default function Sidebar() {
           <div className="space-y-1">
             {navItems.map(({ to, label, icon: IconComp }) => {
               const isActive =
-                to === "/" ? currentPath === "/" : currentPath.startsWith(to);
+                to === "/finance"
+                  ? currentPath === "/finance"
+                  : currentPath.startsWith(to);
 
               return (
                 <Link
@@ -41,7 +43,7 @@ export default function Sidebar() {
 
         <div className="px-4 pb-8">
           <Link
-            to="/settings"
+            to="/finance/settings"
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors no-underline hover:bg-accent hover:text-foreground"
           >
             <Settings size={18} />
@@ -55,7 +57,9 @@ export default function Sidebar() {
         <div className="flex items-center justify-around h-16">
           {navItems.map(({ to, label, icon: IconComp }) => {
             const isActive =
-              to === "/" ? currentPath === "/" : currentPath.startsWith(to);
+              to === "/finance"
+                ? currentPath === "/finance"
+                : currentPath.startsWith(to);
 
             return (
               <Link
