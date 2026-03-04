@@ -74,3 +74,26 @@ export const createWorkMemberSchema = z.object({
 });
 
 export type CreateWorkMemberInput = z.infer<typeof createWorkMemberSchema>;
+
+export const updateWorkMemberSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "El nombre es requerido"),
+  role: z.string().min(1, "El rol es requerido"),
+  seniority: z.string().min(1, "El seniority es requerido"),
+  contractType: z.string().min(1, "El tipo de contrato es requerido"),
+  startDate: z.string().min(1, "La fecha de inicio es requerida"),
+  netSalary: z.string().min(1, "El salario neto es requerido"),
+  isActive: z.string().optional(),
+  endDate: z.string().optional().nullable(),
+});
+
+export type UpdateWorkMemberInput = z.infer<typeof updateWorkMemberSchema>;
+
+export const softDeleteWorkMemberSchema = z.object({
+  id: z.string().uuid(),
+  endDate: z.string().min(1, "La fecha de terminación es requerida"),
+});
+
+export type SoftDeleteWorkMemberInput = z.infer<
+  typeof softDeleteWorkMemberSchema
+>;

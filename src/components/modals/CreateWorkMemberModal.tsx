@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
-import { createWorkMember } from "@/server/work.functions";
+import { createWorkMember, updateWorkMember } from "@/server/work.functions";
 import { createWorkMemberSchema } from "@/server/schemas";
 import type { CreateWorkMemberInput } from "@/server/schemas";
 import {
@@ -25,38 +25,59 @@ import {
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+interface Member {
+  id: string;
+  name: string;
+  role: string;
+  seniority: string;
+  contractType: string;
+  startDate: string;
+  netSalary: string;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  member?: Member | null;
 }
 
-export function CreateWorkMemberModal({ open, onOpenChange }: Props) {
+export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!member;
 
   const form = useForm<CreateWorkMemberInput>({
     resolver: zodResolver(createWorkMemberSchema),
-    defaultValues: {
-      name: "",
-      role: "",
-      seniority: "Junior",
-      contractType: "Temporal",
-      startDate: new Date().toISOString().split("T")[0],
-      netSalary: "",
+    values: {
+      name: member?.name || "",
+      role: member?.role || "",
+      seniority: member?.seniority || "Junior",
+      contractType: member?.contractType || "Temporal",
+      startDate: member?.startDate || new Date().toISOString().split("T")[0],
+      netSalary: member?.netSalary || "",
     },
   });
 
   async function onSubmit(data: CreateWorkMemberInput) {
     try {
       setIsSubmitting(true);
-      await createWorkMember({ data });
-      toast.success("Miembro añadido exitosamente");
-      form.reset();
+      if (isEditing && member) {
+        await updateWorkMember({ data: { ...data, id: member.id } });
+        toast.success("Miembro actualizado exitosamente");
+      } else {
+        await createWorkMember({ data });
+        toast.success("Miembro añadido exitosamente");
+        form.reset();
+      }
       onOpenChange(false);
       router.invalidate();
     } catch (error) {
       console.error(error);
-      toast.error("Error al añadir el miembro");
+      toast.error(
+        isEditing
+          ? "Error al actualizar el miembro"
+          : "Error al añadir el miembro",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -66,7 +87,9 @@ export function CreateWorkMemberModal({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Añadir Miembro del Equipo</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Editar Miembro" : "Añadir Miembro del Equipo"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -103,7 +126,7 @@ export function CreateWorkMemberModal({ open, onOpenChange }: Props) {
               <Label htmlFor="seniority">Seniority</Label>
               <Select
                 onValueChange={(val) => form.setValue("seniority", val)}
-                defaultValue={form.getValues("seniority")}
+                value={form.watch("seniority")}
               >
                 <SelectTrigger id="seniority">
                   <SelectValue placeholder="Selecciona..." />
@@ -124,7 +147,7 @@ export function CreateWorkMemberModal({ open, onOpenChange }: Props) {
               <Label htmlFor="contractType">Tipo Contrato</Label>
               <Select
                 onValueChange={(val) => form.setValue("contractType", val)}
-                defaultValue={form.getValues("contractType")}
+                value={form.watch("contractType")}
               >
                 <SelectTrigger id="contractType">
                   <SelectValue placeholder="Selecciona..." />

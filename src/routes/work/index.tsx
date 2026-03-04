@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { getWorkMembers } from "@/server/work.functions";
-import { Plus } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { CreateWorkMemberModal } from "@/components/modals/CreateWorkMemberModal";
+import { DeleteWorkMemberModal } from "@/components/modals/DeleteWorkMemberModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/work/")({
   loader: async () => getWorkMembers(),
@@ -17,8 +24,14 @@ const formatCOP = (n: number | string) =>
   }).format(Number(n));
 
 function TeamDashboard() {
-  const members = Route.useLoaderData();
+  const allMembers = Route.useLoaderData();
+  const members = allMembers.filter((m) => m.isActive === "true");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<any>(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<any>(null);
 
   const totalPayroll = members.reduce(
     (acc, m) => acc + parseFloat(m.netSalary),
@@ -36,7 +49,10 @@ function TeamDashboard() {
           </p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setMemberToEdit(null);
+            setIsModalOpen(true);
+          }}
           className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 active:scale-[0.98]"
         >
           <Plus size={18} />
@@ -77,6 +93,7 @@ function TeamDashboard() {
                 <th className="px-6 py-4 font-semibold text-right">
                   Neto Base
                 </th>
+                <th className="px-6 py-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -117,6 +134,38 @@ function TeamDashboard() {
                     <td className="px-6 py-4 text-right font-medium">
                       {formatCOP(m.netSalary)}
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors focus:outline-none ml-auto">
+                          <MoreHorizontal
+                            size={16}
+                            className="text-muted-foreground"
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => {
+                              setMemberToEdit(m);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            <Pencil size={14} className="mr-2" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                            onClick={() => {
+                              setMemberToDelete(m);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          >
+                            <Trash size={14} className="mr-2" />
+                            Desvincular
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
                   </tr>
                 ))
               )}
@@ -125,7 +174,25 @@ function TeamDashboard() {
         </div>
       </div>
 
-      <CreateWorkMemberModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <CreateWorkMemberModal
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setTimeout(() => setMemberToEdit(null), 200);
+        }}
+        member={memberToEdit}
+      />
+
+      {memberToDelete && (
+        <DeleteWorkMemberModal
+          open={isDeleteModalOpen}
+          onOpenChange={(open) => {
+            setIsDeleteModalOpen(open);
+            if (!open) setTimeout(() => setMemberToDelete(null), 200);
+          }}
+          member={memberToDelete}
+        />
+      )}
     </div>
   );
 }

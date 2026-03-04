@@ -24,6 +24,8 @@ export const workMembers = pgTable("work_members", {
   seniority: text("seniority").notNull(), // e.g., 'Junior', 'Mid', 'Senior'
   contractType: text("contract_type").notNull(), // e.g., 'Indefinido', 'Temporal', 'Prestación de Servicios'
   startDate: date("start_date").notNull(),
+  endDate: date("end_date"), // For soft-deletes or traceability when a contract ends
+  isActive: text("is_active").default("true").notNull(), // 'true' or 'false'
   netSalary: numeric("net_salary", { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
