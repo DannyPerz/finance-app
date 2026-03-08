@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { formatWithDots } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -127,10 +128,6 @@ export function CreateTransactionModal({ categories }: Props) {
                 control={form.control}
                 name="amount"
                 render={({ field }) => {
-                  const formatWithDots = (val: string) => {
-                    const digits = val.replace(/\D/g, "");
-                    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                  };
                   return (
                     <FormItem>
                       <FormLabel>Monto (COP)</FormLabel>

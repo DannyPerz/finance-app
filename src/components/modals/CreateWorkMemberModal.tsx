@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 import { createWorkMember, updateWorkMember } from "@/server/work.functions";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatWithDots } from "@/lib/utils";
 
 interface Member {
   id: string;
@@ -175,12 +176,21 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
 
           <div className="grid gap-2">
             <Label htmlFor="netSalary">Salario Neto Mensual (COP)</Label>
-            <Input
-              id="netSalary"
-              type="number"
-              min="0"
-              {...form.register("netSalary")}
-              placeholder="Ej. 3500000"
+            <Controller
+              name="netSalary"
+              control={form.control}
+              render={({ field }) => (
+                <Input
+                  id="netSalary"
+                  inputMode="numeric"
+                  placeholder="Ej. 3.500.000"
+                  value={formatWithDots(field.value || "")}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    field.onChange(raw);
+                  }}
+                />
+              )}
             />
             {form.formState.errors.netSalary && (
               <p className="text-sm text-destructive">
