@@ -10,6 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { calculatePayrollCosts } from "@/lib/payroll.utils";
+import { WorkMemberInvoiceSheet } from "@/components/WorkMemberInvoiceSheet";
 
 export const Route = createFileRoute("/work/")({
   loader: async () => getWorkMembers(),
@@ -33,8 +35,23 @@ function TeamDashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<any>(null);
 
-  const totalPayroll = members.reduce(
-    (acc, m) => acc + parseFloat(m.netSalary),
+  const [memberToShowDetails, setMemberToShowDetails] = useState<any>(null);
+
+  // Calculate actual costs using the mathematical model
+  const enrichedMembers = members.map((m) => {
+    const costs = calculatePayrollCosts(
+      parseFloat(m.baseSalary),
+      m.contractType,
+    );
+    return { ...m, ...costs };
+  });
+
+  const totalNetToPay = enrichedMembers.reduce(
+    (acc, m) => acc + m.netSalaryToPay,
+    0,
+  );
+  const totalRunRate = enrichedMembers.reduce(
+    (acc, m) => acc + m.totalEmployerCost,
     0,
   );
 
@@ -61,21 +78,35 @@ function TeamDashboard() {
       </div>
 
       {/* Metrics */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4">
         <div className="glass rounded-xl p-5 shadow-sm">
           <h3 className="text-sm font-medium text-muted-foreground">
-            Tamaño del Equipo
+            Equipo Activo
           </h3>
           <div className="mt-2 text-3xl font-bold text-blue-600">
             {members.length}
           </div>
         </div>
-        <div className="glass rounded-xl p-5 shadow-sm">
+        <div className="glass rounded-xl p-5 shadow-sm col-span-1 border-l-4 border-l-emerald-500">
           <h3 className="text-sm font-medium text-muted-foreground">
-            Nómina Neta Mensual
+            Líquido a Dispersar
           </h3>
-          <div className="mt-2 text-3xl font-bold text-foreground">
-            {formatCOP(totalPayroll)}
+          <p className="text-xs text-muted-foreground mb-1">
+            Lo que pagas al banco
+          </p>
+          <div className="text-3xl font-bold text-foreground">
+            {formatCOP(totalNetToPay)}
+          </div>
+        </div>
+        <div className="glass rounded-xl p-5 shadow-sm col-span-1 sm:col-span-2 border-l-4 border-l-orange-500">
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Costo Empresa (Run Rate)
+          </h3>
+          <p className="text-xs text-muted-foreground mb-1">
+            Salarios + Provisiones y Seguridad Social
+          </p>
+          <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+            {formatCOP(totalRunRate)}
           </div>
         </div>
       </div>
@@ -89,9 +120,11 @@ function TeamDashboard() {
                 <th className="px-6 py-4 font-semibold">Nombre & Rol</th>
                 <th className="px-6 py-4 font-semibold">Seniority</th>
                 <th className="px-6 py-4 font-semibold">Contrato</th>
-                <th className="px-6 py-4 font-semibold">Ingreso</th>
                 <th className="px-6 py-4 font-semibold text-right">
-                  Neto Base
+                  Base (Bruto)
+                </th>
+                <th className="px-6 py-4 font-semibold text-right">
+                  Costo Total
                 </th>
                 <th className="px-6 py-4"></th>
               </tr>
@@ -107,10 +140,11 @@ function TeamDashboard() {
                   </td>
                 </tr>
               ) : (
-                members.map((m) => (
+                enrichedMembers.map((m) => (
                   <tr
                     key={m.id}
-                    className="transition-colors hover:bg-muted/30"
+                    className="transition-colors hover:bg-muted/30 cursor-pointer"
+                    onClick={() => setMemberToShowDetails(m)}
                   >
                     <td className="px-6 py-4">
                       <div className="font-medium text-foreground">
@@ -128,13 +162,16 @@ function TeamDashboard() {
                     <td className="px-6 py-4 text-muted-foreground">
                       {m.contractType}
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {m.startDate}
-                    </td>
                     <td className="px-6 py-4 text-right font-medium">
-                      {formatCOP(m.netSalary)}
+                      {formatCOP(m.baseSalary)}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right font-medium text-orange-600 dark:text-orange-400">
+                      {formatCOP(m.totalEmployerCost)}
+                    </td>
+                    <td
+                      className="px-6 py-4 text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <DropdownMenu>
                         <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors focus:outline-none ml-auto">
                           <MoreHorizontal
@@ -191,6 +228,14 @@ function TeamDashboard() {
             if (!open) setTimeout(() => setMemberToDelete(null), 200);
           }}
           member={memberToDelete}
+        />
+      )}
+
+      {memberToShowDetails && (
+        <WorkMemberInvoiceSheet
+          open={!!memberToShowDetails}
+          onOpenChange={(open) => !open && setMemberToShowDetails(null)}
+          member={memberToShowDetails}
         />
       )}
     </div>

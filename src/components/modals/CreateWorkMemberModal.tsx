@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
@@ -22,9 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { formatWithDots } from "@/lib/utils";
+import { calculatePayrollCosts } from "@/lib/payroll.utils";
 
 interface Member {
   id: string;
@@ -33,7 +34,7 @@ interface Member {
   seniority: string;
   contractType: string;
   startDate: string;
-  netSalary: string;
+  baseSalary: string;
 }
 
 interface Props {
@@ -55,9 +56,18 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
       seniority: member?.seniority || "Junior",
       contractType: member?.contractType || "Temporal",
       startDate: member?.startDate || new Date().toISOString().split("T")[0],
-      netSalary: member?.netSalary || "",
+      baseSalary: member?.baseSalary || "",
     },
   });
+
+  const watchBaseSalary = form.watch("baseSalary");
+  const watchContractType = form.watch("contractType");
+
+  const liveCosts = useMemo(() => {
+    const rawNum = Number(watchBaseSalary.replace(/\D/g, ""));
+    if (!rawNum || rawNum === 0) return null;
+    return calculatePayrollCosts(rawNum, watchContractType);
+  }, [watchBaseSalary, watchContractType]);
 
   async function onSubmit(data: CreateWorkMemberInput) {
     try {
@@ -175,13 +185,13 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="netSalary">Salario Neto Mensual (COP)</Label>
+            <Label htmlFor="baseSalary">Salario Base (Bruto) Mensual</Label>
             <Controller
-              name="netSalary"
+              name="baseSalary"
               control={form.control}
               render={({ field }) => (
                 <Input
-                  id="netSalary"
+                  id="baseSalary"
                   inputMode="numeric"
                   placeholder="Ej. 3.500.000"
                   value={formatWithDots(field.value || "")}
@@ -192,12 +202,37 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
                 />
               )}
             />
-            {form.formState.errors.netSalary && (
+            {form.formState.errors.baseSalary && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.netSalary.message}
+                {form.formState.errors.baseSalary.message}
               </p>
             )}
           </div>
+
+          {liveCosts && (
+            <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4 relative overflow-hidden">
+              <div className="flex items-start gap-3">
+                <Info size={16} className="mt-0.5 text-blue-600 shrink-0" />
+                <div className="grid gap-1.5 flex-1">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    Proyección de Nómina
+                  </p>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    El empleado recibirá{" "}
+                    <strong>${formatWithDots(liveCosts.netSalaryToPay)}</strong>{" "}
+                    líquidos.
+                  </p>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    El costo total empresa será aprox.{" "}
+                    <strong>
+                      ${formatWithDots(liveCosts.totalEmployerCost)}
+                    </strong>{" "}
+                    /mes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <DialogFooter className="pt-4">
             <Button

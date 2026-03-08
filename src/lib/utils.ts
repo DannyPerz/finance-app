@@ -6,7 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatWithDots(val: string | number): string {
-  if (!val) return "";
+  if (val === null || val === undefined || val === "") return "";
+
+  if (typeof val === "number") {
+    val = Math.round(val);
+  }
+
   const digits = val.toString().replace(/\D/g, "");
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }

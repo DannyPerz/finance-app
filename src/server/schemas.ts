@@ -70,7 +70,7 @@ export const createWorkMemberSchema = z.object({
   seniority: z.string().min(1, "El seniority es requerido"),
   contractType: z.string().min(1, "El tipo de contrato es requerido"),
   startDate: z.string().min(1, "La fecha de inicio es requerida"),
-  netSalary: z.string().min(1, "El salario neto es requerido"),
+  baseSalary: z.string().min(1, "El salario base (bruto) es requerido"),
 });
 
 export type CreateWorkMemberInput = z.infer<typeof createWorkMemberSchema>;
@@ -82,7 +82,7 @@ export const updateWorkMemberSchema = z.object({
   seniority: z.string().min(1, "El seniority es requerido"),
   contractType: z.string().min(1, "El tipo de contrato es requerido"),
   startDate: z.string().min(1, "La fecha de inicio es requerida"),
-  netSalary: z.string().min(1, "El salario neto es requerido"),
+  baseSalary: z.string().min(1, "El salario base (bruto) es requerido"),
   isActive: z.string().optional(),
   endDate: z.string().optional().nullable(),
 });
