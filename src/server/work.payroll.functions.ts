@@ -96,8 +96,9 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
         deductions: costs.employeeDeductions.total.toString(),
         bonuses: "0", // Could be dynamic in the future
         netPaid: costs.netSalaryToPay.toString(),
+        employerCost: costs.totalEmployerCost.toString(),
         status: "pending", // Unpaid default
-        notes: `Generado automáticamente. Costo empresa: $${costs.totalEmployerCost}`,
+        notes: `Generado automáticamente.`,
       };
     });
 

@@ -123,3 +123,31 @@ export const updatePayrollParametersSchema = z.object({
 export type UpdatePayrollParametersInput = z.infer<
   typeof updatePayrollParametersSchema
 >;
+
+// ─── Ops Expenses (Infra & SaaS) ─────────────────────────
+
+export const createOpsExpenseSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  category: z.string().min(1, "La categoría es requerida"),
+  amount: z.union([z.string(), z.number()]).transform(String),
+  billingCycle: z.enum(["monthly", "yearly"]).default("monthly"),
+});
+
+export type CreateOpsExpenseInput = z.infer<typeof createOpsExpenseSchema>;
+
+export const updateOpsExpenseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "El nombre es requerido"),
+  category: z.string().min(1, "La categoría es requerida"),
+  amount: z.union([z.string(), z.number()]).transform(String),
+  billingCycle: z.enum(["monthly", "yearly"]).default("monthly"),
+  isActive: z.string().optional(),
+});
+
+export type UpdateOpsExpenseInput = z.infer<typeof updateOpsExpenseSchema>;
+
+export const deleteOpsExpenseSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type DeleteOpsExpenseInput = z.infer<typeof deleteOpsExpenseSchema>;

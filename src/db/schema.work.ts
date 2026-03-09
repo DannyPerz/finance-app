@@ -58,6 +58,9 @@ export const workPayrolls = pgTable("work_payrolls", {
     .default("0")
     .notNull(),
   netPaid: numeric("net_paid", { precision: 12, scale: 2 }).notNull(),
+  employerCost: numeric("employer_cost", { precision: 12, scale: 2 })
+    .default("0")
+    .notNull(),
   status: text("status").notNull().default("pending"), // 'pending', 'paid'
   paymentDate: date("payment_date"),
   notes: text("notes"),
@@ -76,65 +79,35 @@ export const workPayrollsRelations = relations(workPayrolls, ({ one }) => ({
   }),
 }));
 
-// 3. Vendors / Services (SaaS, Infra, Hardware)
-export const workVendors = pgTable("work_vendors", {
+// 3. Infra & Ops Expenses (SaaS, Cloud, Hardware)
+export const workOpsExpenses = pgTable("work_ops_expenses", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  name: text("name").notNull(), // e.g., 'AWS', 'ClickUp', 'Vercel'
-  category: text("category").notNull(), // e.g., 'Software', 'Infrastructure', 'Hardware'
-  recurringCost: numeric("recurring_cost", {
+  name: text("name").notNull(), // e.g., 'AWS', 'ClickUp', 'Vercel', 'Figma'
+  category: text("category").notNull(), // e.g., 'Cloud', 'Software', 'DevTools', 'Hardware'
+  amount: numeric("amount", {
     precision: 12,
     scale: 2,
   }).notNull(),
-  currency: text("currency").notNull().default("USD"), // e.g., 'USD', 'COP'
   billingCycle: text("billing_cycle").notNull().default("monthly"), // 'monthly', 'yearly'
-  nextRenewal: date("next_renewal"),
+  isActive: text("is_active").default("true").notNull(), // 'true' or 'false'
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const workVendorsRelations = relations(workVendors, ({ one, many }) => ({
-  user: one(users, {
-    fields: [workVendors.userId],
-    references: [users.id],
-  }),
-  invoices: many(workVendorInvoices),
-}));
-
-// 4. Vendor Invoices / Operating Costs
-export const workVendorInvoices = pgTable("work_vendor_invoices", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  vendorId: uuid("vendor_id")
-    .references(() => workVendors.id, { onDelete: "cascade" })
-    .notNull(),
-  period: text("period").notNull(), // e.g., '2026-03'
-  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("USD"),
-  trm: numeric("trm", { precision: 12, scale: 2 }), // Tasa de Cambio Representativa del Mercado
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const workVendorInvoicesRelations = relations(
-  workVendorInvoices,
+export const workOpsExpensesRelations = relations(
+  workOpsExpenses,
   ({ one }) => ({
     user: one(users, {
-      fields: [workVendorInvoices.userId],
+      fields: [workOpsExpenses.userId],
       references: [users.id],
-    }),
-    vendor: one(workVendors, {
-      fields: [workVendorInvoices.vendorId],
-      references: [workVendors.id],
     }),
   }),
 );
 
-// 5. Payroll Config Parameters (SMMLV, Exonerations, Percentages)
+// 4. Payroll Config Parameters (SMMLV, Exonerations, Percentages)
 export const workPayrollParameters = pgTable("work_payroll_parameters", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
