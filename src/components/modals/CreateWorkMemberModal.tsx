@@ -41,9 +41,15 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member?: Member | null;
+  params?: any;
 }
 
-export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
+export function CreateWorkMemberModal({
+  open,
+  onOpenChange,
+  member,
+  params,
+}: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!member;
@@ -56,7 +62,9 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
       seniority: member?.seniority || "Junior",
       contractType: member?.contractType || "Temporal",
       startDate: member?.startDate || new Date().toISOString().split("T")[0],
-      baseSalary: member?.baseSalary || "",
+      baseSalary: member?.baseSalary
+        ? Math.round(Number(member.baseSalary)).toString()
+        : "",
       arlLevel: (member?.arlLevel as "I" | "II" | "III" | "IV" | "V") || "I",
     },
   });
@@ -72,6 +80,7 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
       rawNum,
       watchContractType,
       (watchArlLevel || "I") as "I" | "II" | "III" | "IV" | "V",
+      params,
     );
   }, [watchBaseSalary, watchContractType, watchArlLevel]);
 
@@ -252,7 +261,13 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
                   <p className="text-sm text-blue-800 dark:text-blue-200">
                     El empleado recibirá{" "}
                     <strong>${formatWithDots(liveCosts.netSalaryToPay)}</strong>{" "}
-                    líquidos.
+                    esperados.{" "}
+                    {liveCosts.transportAllowance > 0 && (
+                      <span className="text-blue-600 dark:text-blue-300">
+                        (Incluye ${formatWithDots(liveCosts.transportAllowance)}{" "}
+                        de auxilio de transp.)
+                      </span>
+                    )}
                   </p>
                   <p className="text-sm text-blue-800 dark:text-blue-200">
                     El costo total empresa será aprox.{" "}

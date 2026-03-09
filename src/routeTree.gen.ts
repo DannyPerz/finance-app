@@ -14,6 +14,7 @@ import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkIndexRouteImport } from './routes/work/index'
 import { Route as FinanceIndexRouteImport } from './routes/finance/index'
+import { Route as WorkSettingsRouteImport } from './routes/work/settings'
 import { Route as WorkReportsRouteImport } from './routes/work/reports'
 import { Route as WorkPayrollsRouteImport } from './routes/work/payrolls'
 import { Route as WorkOpsRouteImport } from './routes/work/ops'
@@ -46,6 +47,11 @@ const FinanceIndexRoute = FinanceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FinanceRoute,
+} as any)
+const WorkSettingsRoute = WorkSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => WorkRoute,
 } as any)
 const WorkReportsRoute = WorkReportsRouteImport.update({
   id: '/reports',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/work/ops': typeof WorkOpsRoute
   '/work/payrolls': typeof WorkPayrollsRoute
   '/work/reports': typeof WorkReportsRoute
+  '/work/settings': typeof WorkSettingsRoute
   '/finance/': typeof FinanceIndexRoute
   '/work/': typeof WorkIndexRoute
 }
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/work/ops': typeof WorkOpsRoute
   '/work/payrolls': typeof WorkPayrollsRoute
   '/work/reports': typeof WorkReportsRoute
+  '/work/settings': typeof WorkSettingsRoute
   '/finance': typeof FinanceIndexRoute
   '/work': typeof WorkIndexRoute
 }
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/work/ops': typeof WorkOpsRoute
   '/work/payrolls': typeof WorkPayrollsRoute
   '/work/reports': typeof WorkReportsRoute
+  '/work/settings': typeof WorkSettingsRoute
   '/finance/': typeof FinanceIndexRoute
   '/work/': typeof WorkIndexRoute
 }
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/work/ops'
     | '/work/payrolls'
     | '/work/reports'
+    | '/work/settings'
     | '/finance/'
     | '/work/'
   fileRoutesByTo: FileRoutesByTo
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/work/ops'
     | '/work/payrolls'
     | '/work/reports'
+    | '/work/settings'
     | '/finance'
     | '/work'
   id:
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/work/ops'
     | '/work/payrolls'
     | '/work/reports'
+    | '/work/settings'
     | '/finance/'
     | '/work/'
   fileRoutesById: FileRoutesById
@@ -210,6 +222,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/finance/'
       preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof FinanceRoute
+    }
+    '/work/settings': {
+      id: '/work/settings'
+      path: '/settings'
+      fullPath: '/work/settings'
+      preLoaderRoute: typeof WorkSettingsRouteImport
+      parentRoute: typeof WorkRoute
     }
     '/work/reports': {
       id: '/work/reports'
@@ -284,6 +303,7 @@ interface WorkRouteChildren {
   WorkOpsRoute: typeof WorkOpsRoute
   WorkPayrollsRoute: typeof WorkPayrollsRoute
   WorkReportsRoute: typeof WorkReportsRoute
+  WorkSettingsRoute: typeof WorkSettingsRoute
   WorkIndexRoute: typeof WorkIndexRoute
 }
 
@@ -291,6 +311,7 @@ const WorkRouteChildren: WorkRouteChildren = {
   WorkOpsRoute: WorkOpsRoute,
   WorkPayrollsRoute: WorkPayrollsRoute,
   WorkReportsRoute: WorkReportsRoute,
+  WorkSettingsRoute: WorkSettingsRoute,
   WorkIndexRoute: WorkIndexRoute,
 }
 

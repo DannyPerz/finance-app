@@ -64,7 +64,9 @@ function PayrollsDashboard() {
     try {
       setIsGenerating(true);
       await generateMonthlyPayroll({ data: { period: periodToGenerate } });
-      toast.success(`Nómina de ${periodToGenerate} liquidada exitosamente.`);
+      toast.success(
+        `Snapshot OPEX de ${periodToGenerate} guardado exitosamente.`,
+      );
       setIsGenerateModalOpen(false);
       router.invalidate();
     } catch (err: any) {
@@ -80,9 +82,12 @@ function PayrollsDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Nóminas</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Cierres OPEX de Talento
+          </h1>
           <p className="text-muted-foreground">
-            Liquidación e histórico de pagos realizados a tu equipo.
+            Fotografías congeladas del gasto operativo de tu equipo (Run Rate
+            Mensual).
           </p>
         </div>
         <button
@@ -96,7 +101,7 @@ function PayrollsDashboard() {
           className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]"
         >
           <PlayCircle size={18} />
-          Liquidar Mes
+          Generar Snapshot
         </button>
       </div>
 
@@ -106,10 +111,13 @@ function PayrollsDashboard() {
             <div className="mb-4 rounded-full bg-blue-500/10 p-4 text-blue-500">
               <FileText size={48} />
             </div>
-            <h3 className="mb-2 text-xl font-bold">Sin histórico de nóminas</h3>
+            <h3 className="mb-2 text-xl font-bold">
+              Sin histórico de Cierres OPEX
+            </h3>
             <p className="max-w-md text-muted-foreground mb-6">
-              Aún no has liquidado ningún periodo. Usa el botón superior para
-              calcular y generar el registro de la nómina actual.
+              Aún no has guardado la fotografía de ningún periodo temporal. Usa
+              el botón superior para consolidar el registro de los costos del
+              equipo en el mes actual.
             </p>
           </div>
         ) : (
@@ -140,7 +148,7 @@ function PayrollsDashboard() {
       <Dialog open={isGenerateModalOpen} onOpenChange={setIsGenerateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Liquidar Nómina del Mes</DialogTitle>
+            <DialogTitle>Guardar Configuración Mensual OPEX</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -153,9 +161,9 @@ function PayrollsDashboard() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Esto calculará el salario bruto, deducciones y provisiones de
-              todos los miembros activos para el periodo seleccionado, y
-              generará un borrador de nómina ("Colilla").
+              Esto pasará un escáner y guardará una foto matemática permanente
+              de los costos operativos y salarios de todos los miembros activos
+              bajo tu área en el periodo seleccionado.
             </p>
           </div>
           <DialogFooter>
@@ -173,10 +181,10 @@ function PayrollsDashboard() {
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Liquidando...
+                  Guardando...
                 </>
               ) : (
-                "Generar Nómina"
+                "Tomar Fotografía (Snapshot)"
               )}
             </Button>
           </DialogFooter>
@@ -220,7 +228,7 @@ function PeriodCard({ period, items, totalGross, totalNet }: any) {
           <div>
             <h3 className="font-bold text-lg capitalize">{displayPeriod}</h3>
             <p className="text-sm text-muted-foreground">
-              {items.length} Colillas Generadas
+              {items.length} Colaboradores Activos
             </p>
           </div>
         </div>
@@ -292,11 +300,11 @@ function PeriodCard({ period, items, totalGross, totalNet }: any) {
                     <td className="px-4 py-3 text-center">
                       {item.payroll.status === "paid" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
-                          <CheckCircle2 size={12} /> Pagado
+                          <CheckCircle2 size={12} /> OPEX Consignado
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-full border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                          Pendiente
+                        <span className="inline-flex items-center rounded-full border border-border bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                          OPEX Calculado
                         </span>
                       )}
                     </td>

@@ -23,13 +23,20 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member: Member;
+  params?: any;
 }
 
-export function WorkMemberInvoiceSheet({ open, onOpenChange, member }: Props) {
+export function WorkMemberInvoiceSheet({
+  open,
+  onOpenChange,
+  member,
+  params,
+}: Props) {
   const costs = calculatePayrollCosts(
     parseFloat(member.baseSalary),
     member.contractType,
     (member.arlLevel || "I") as "I" | "II" | "III" | "IV" | "V",
+    params,
   );
 
   return (
@@ -71,6 +78,13 @@ export function WorkMemberInvoiceSheet({ open, onOpenChange, member }: Props) {
                       -${formatWithDots(costs.employeeDeductions.pension)}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {costs.transportAllowance > 0 && (
+                <div className="flex justify-between items-center text-blue-600 dark:text-blue-400 font-medium pt-2 border-t border-dashed">
+                  <span>(+) Auxilio de Transporte Ley</span>
+                  <span>${formatWithDots(costs.transportAllowance)}</span>
                 </div>
               )}
 
@@ -128,13 +142,13 @@ export function WorkMemberInvoiceSheet({ open, onOpenChange, member }: Props) {
                     <span>${formatWithDots(costs.employerProvisions.arl)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>(+) Prima de Servicios (8.33%)</span>
+                    <span>(+) Prima de Servicios (8.33% incl. Aux)</span>
                     <span>
                       ${formatWithDots(costs.employerProvisions.serviceBonus)}
                     </span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>(+) Cesantías (8.33%)</span>
+                    <span>(+) Cesantías (8.33% incl. Aux)</span>
                     <span>
                       ${formatWithDots(costs.employerProvisions.severance)}
                     </span>

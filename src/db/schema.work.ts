@@ -133,3 +133,76 @@ export const workVendorInvoicesRelations = relations(
     }),
   }),
 );
+
+// 5. Payroll Config Parameters (SMMLV, Exonerations, Percentages)
+export const workPayrollParameters = pgTable("work_payroll_parameters", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  year: numeric("year", { precision: 4, scale: 0 }).notNull(), // ej. 2026
+  smmlv: numeric("smmlv", { precision: 12, scale: 2 })
+    .notNull()
+    .default("1300000"),
+  transportAllowance: numeric("transport_allowance", {
+    precision: 12,
+    scale: 2,
+  })
+    .notNull()
+    .default("162000"),
+
+  // Deducciones Empleado
+  healthEmployee: numeric("health_employee", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.04"), // 4%
+  pensionEmployee: numeric("pension_employee", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.04"), // 4%
+  solidarityFundThreshold: numeric("solidarity_fund_threshold", {
+    precision: 12,
+    scale: 2,
+  })
+    .notNull()
+    .default("4"), // 4 SMMLV
+
+  // Carga Prestacional / Provisiones Empleador
+  healthEmployer: numeric("health_employer", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.085"), // 8.5%
+  pensionEmployer: numeric("pension_employer", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.12"), // 12%
+  ccf: numeric("ccf", { precision: 5, scale: 4 }).notNull().default("0.04"), // 4%
+  sena: numeric("sena", { precision: 5, scale: 4 }).notNull().default("0.02"), // 2%
+  icbf: numeric("icbf", { precision: 5, scale: 4 }).notNull().default("0.03"), // 3%
+  severance: numeric("severance", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.0833"), // 8.33%
+  serviceBonus: numeric("service_bonus", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.0833"), // 8.33%
+  vacation: numeric("vacation", { precision: 5, scale: 4 })
+    .notNull()
+    .default("0.0417"), // 4.17%
+
+  // Ley 1819 Exoneration Limit
+  exonerationThreshold: numeric("exoneration_threshold", {
+    precision: 12,
+    scale: 2,
+  })
+    .notNull()
+    .default("10"), // 10 SMMLV
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const workPayrollParametersRelations = relations(
+  workPayrollParameters,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [workPayrollParameters.userId],
+      references: [users.id],
+    }),
+  }),
+);

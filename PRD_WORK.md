@@ -1,49 +1,58 @@
-# Product Requirements Document (PRD) - Work Suite v1.5
+# Product Requirements Document (PRD) - Tech Lead Finance Tracker (Work Suite)
 
 ## 1. Objetivo General
 
-Evolucionar el módulo "Work" de Finova desde un simple directorio de empleados (CRUD) hacia un **Motor Contable de Costos Laborales**. El fin primordial es dotar a los administradores (CEOs y HR) de proyecciones matemáticas rigurosas que expongan la **Liquidez Necesaria para Dispersiones de Nómina** y el **Impacto Real en el Estado de Resultados (Costo Empresa Run Rate)**, tomando como referencia las normativas laborales de Colombia.
+Transformar el módulo "Work" de Finova en una herramienta personal de control de presupuesto para **Tech Leads / Engineering Managers**. Su propósito central es permitir la administración unificada y exacta del OPEX (Gastos Operativos) del área de tecnología. Esto incluye el cálculo real de los costos laborales del equipo de desarrollo (incorporando provisiones, prestaciones y cargas sociales de ley) y la gestión del gasto de infraestructura y operaciones (SaaS, Cloud, Licencias), rematando con reportes y cierres históricos diseñados para presentar al CEO.
 
 ## 2. Visión del Negocio y Problema
 
-Actualmente, los negocios y startups cometen el error financiero de contabilizar los "salarios pagados al talento" como su costo laboral total.
-En la realidad, un contrato indefinido o a término fijo conlleva responsabilidades accesorias (Prestaciones, Seguridad Social y Parafiscales) que encarecen el recurso hasta un ~50% por encima de lo que se le consigna al banco.
-Finova solucionará este gap cognitivo revelando en vivo y de forma transparente toda la sábana de costos asociados a la contratación.
+Generalmente, los Tech Leads llevan el control de su presupuesto departamental en hojas de cálculo fragmentadas:
+
+1. Por un lado, una lista teórica de salarios de la plantilla o _headcount_. (Frecuentemente ignoran el sobrecosto prestacional y parafiscal que impacta a la empresa, sumando hasta un ~50% por encima del líquido pagado).
+2. Por otro, un listado de facturas no estandarizadas pagadas a múltiples proveedores (AWS, Vercel, Figma, GitHub, Jira).
+
+**La Solución:** Finova cerrará este gap creando una consola unificada. **No** es un software contable genérico ni una suite de Recursos Humanos para liquidar y dispersar nóminas reales. Es una herramienta directiva de simulación y control financiero ("Run Rate" mensual continuo) para que el líder técnico visualice con transparencia del 100% cuánto cuesta su departamento al negocio.
 
 ## 3. Especificaciones y Características (Features)
 
-### 3.1. Modelo "Bottom-Up" (Cálculo a partir del Salario Bruto)
+### 3.1. Gestión de Costos Laborales (Dev Team)
 
-- **Entrada de Datos:** El form base para reclutar a un miembro se anclará al `baseSalary` (Salario Bruto pactado) y al `contractType` (Indefinido, Fijo, Prestación de Servicios, Temporal).
-- **Live Projections:** Una UI en tiempo real (_Proyección de Nómina_) pre-calculará para el admin cuánto será transferido de forma líquida y cuánto costará mantener la plaza activa antes de guardar.
+- **Directorio de Talento:** Añadir desarrolladores y staff técnico indicando Salario Bruto, Rol y Seniority.
+- **Motor "Bottom-Up" (Simulador Fiscal):** Pre-calcula el Costo Real Empresa a nivel P&L. Desglosa los impuestos asimilados para el área, las vacaciones, ARL y obligaciones laborales.
+- **Onboarding Proyectado:** Una UI interactiva para dimensionar en vivo los costos al negocio de contratar una nueva vacante.
 
-### 3.2. Panel Desagregado (Hoja de Costos / Nómina)
+### 3.2. Módulo de Infraestructura y Operaciones (Infra & Ops)
 
-- Al interactuar con el registro de un recurso humano activo en el dashboard, la aplicación desplegará una vista detallada (Sheet), donde desglosará matemáticamente la "Torta de Egresos".
-- **Fila de Deducibles:** Cuánto asume el empleado en Salud (4%) y Pensión (4%).
-- **Fila de Sobre-Costos Empleador:** Sumatoria segmentada de Primas, Vacaciones, ARL, Pensión (12%) e Intereses que no se consignan mes a mes, pero _deben provisionarse_.
+- **Directorio de Suscripciones SaaS y Cloud:** Gestión centralizada de herramientas como Vercel, AWS, MongoDB Atlas, Figma, Miro, Slack, etc.
+- **Rastreo Financiero de Proveedores:** Cargar la periodicidad del cobro (Mensual/Anual) y normalizarlos a un impacto mensual del departamento.
+- **Tracking Activo:** Permite llevar control de a qué plataforma está subscrita el área de tecnología.
 
-### 3.3. Configuración Parametrizable de Variables Jurídicas [PENDIENTE]
+### 3.3. Reportes Executivos y Trazabilidad Histórica (Reportes)
 
-_Se desarrollará en la Fase 6_.
+- **Fotografías Temporales (Cierres Visuales):** Capacidad de capturar y guardar una "fotografía" histórica de los salarios de un mes cerrado para que la trazabilidad de costos operativos nunca se mutile por cambios de salarios a futuro.
+- **Dashboard CEO-Ready:** Una sección de gráficas y KPIs consolidados ("Tech Area OPEX") combinando Talento + Infraestructura. Diseñada especialmente para exportar/exponer al CEO o CFO justificando el presupuesto del ecosistema digital.
 
-- **Problema:** Los salarios mínimos, coeficientes de riesgos laborales y exenciones fiscales cambian cada enero mediante decretos del gobierno.
-- **Solución Arquitectónica:** En lugar de codificar ("hardcodear") constantes como `1300000` (SMMLV) o `0` (SENA/ICBF por Ley 1819), Finova tendrá una tabla de base de datos dedicada `work_payroll_parameters`.
-- **Módulo de Administrador ("Ajustes de Nómina"):**
-  - El usuario podrá inyectar un SMMLV base.
-  - Definir el tope para exoneración parafiscal (ej. 10 SMMLV).
-  - Activar/Desactivar Auxilio de Transporte.
-- **Motor Lógico Dinámico:** Las matemáticas ubicadas en `payroll.utils.ts` leerán de la base de datos la tabla de configuración vigente en el mes, y aplicarán los perdonazos fiscales según esa fotografía en el tiempo, asegurando un back-testing de nóminas pasadas perfecto y adaptabilidad total al futuro.
+### 3.4. Parámetros Macro (Settings)
 
-## 4. Requisitos de Datos (Data Dictionary Update)
+- El Tech lead podrá parametrizar los porcentajes de la normatividad local gubernamental. Actualizando el salario mínimo, los aportes a pensiones / cesantías el simulador continuará calculando al centavo sin depender de código quemado.
 
-| Entidad         | Campo         | Tipo    | Función                                                                                    |
-| --------------- | ------------- | ------- | ------------------------------------------------------------------------------------------ |
-| `work_members`  | `baseSalary`  | Decimal | Sustituye al histórico `netSalary` para adherir el cálculo Bottom-Up.                      |
-| `work_settings` | _(Por Crear)_ | Tabla   | Almacenará SMMLV año vigente, thresholds de exoneración y porcentajes mutables (ARL, CCF). |
+## 4. Requisitos de Datos (Data Dictionary)
 
-## 5. Criterios de Éxito y Métricas
+| Entidad                   | Tipo           | Función Principal                                                                          |
+| ------------------------- | -------------- | ------------------------------------------------------------------------------------------ |
+| `work_members`            | Tabla          | Desarrolladores activos con sus respectivos sueldos brutos, seniority y contrato.          |
+| `work_payroll_parameters` | Tabla          | Ajustes macroeconómicos para mantener viva la matemática de cargas tributarias patronales. |
+| `work_payrolls`           | Tabla          | Colillas "congeladas" en el tiempo detallando el histórico de facturación de talento.      |
+| `work_ops_expenses`       | _(Nueva Fase)_ | Tracker de infraestructura, categorizando gastos en la nube y licencias (AWS, etc.).       |
 
-- [x] El FrontEnd renderiza proyecciones live sin trabar o bloquear al usuario (Latency < 200ms).
-- [x] La sumatoria ("Total Provisiones" + "Neto a Consignar" + "Deducciones de Ley") totaliza exactamente matemáticamente el `totalEmployerCost`.
-- [ ] La Fase 6 implementa un endpoint de DB para leer variables legislativas dinámicas y alimentar al FrontEnd con esas constantes antes de operar.
+## 5. Roadmap de Funcionalidades Pendientes
+
+**Fase 7: Infra & Ops (Operaciones de IT)**
+
+- Construir esquema en BD para suscripciones SaaS y Cloud.
+- UI para que el Tech Lead liste servicios (AWS, Vercel) y costos, centralizando herramientas en la vista `/work/ops`.
+
+**Fase 8: Dashboard Executivo P&L**
+
+- Renderizado de gráficos de Dona (Talento vs Infraestructura) o gráficos de Barra por meses en `/work/reports`.
+- Permite observar las fotografías del gasto de la unidad.

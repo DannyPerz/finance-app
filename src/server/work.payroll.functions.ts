@@ -2,8 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
-import { workMembers, workPayrolls } from "../db/schema";
+import { workMembers, workPayrolls, workPayrollParameters } from "../db/schema";
 import { calculatePayrollCosts } from "../lib/payroll.utils";
+import { getPayrollParameters } from "./work.settings.functions";
 
 const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
 
@@ -35,6 +36,21 @@ export const generateMonthlyPayrollSchema = z.object({
 export const generateMonthlyPayroll = createServerFn({ method: "POST" })
   .inputValidator(generateMonthlyPayrollSchema)
   .handler(async ({ data }) => {
+    // 0. Extract year from period
+    const year = parseInt(data.period.split("-")[0], 10);
+    // Fetch the specific parameters for this year directly since this is a server function calling another server function's inner logic
+    let params = await db.query.workPayrollParameters.findFirst({
+      where: and(
+        eq(workPayrollParameters.userId, TEMP_USER_ID),
+        eq(workPayrollParameters.year, String(year)),
+      ),
+    });
+
+    if (!params) {
+      // Fallback or seed if none found
+      params = await getPayrollParameters({ data: { year } });
+    }
+
     // 1. Fetch all active members
     const activeMembers = await db
       .select()
@@ -69,6 +85,7 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
         Number(m.baseSalary),
         m.contractType,
         (m.arlLevel || "I") as any,
+        params as any,
       );
 
       return {

@@ -99,3 +99,27 @@ export const softDeleteWorkMemberSchema = z.object({
 export type SoftDeleteWorkMemberInput = z.infer<
   typeof softDeleteWorkMemberSchema
 >;
+
+// ─── Payroll Parameters (Admin) ─────────────────────────
+
+export const updatePayrollParametersSchema = z.object({
+  year: z.number().int().min(2020).max(2100),
+  smmlv: z.union([z.string(), z.number()]).transform(String),
+  transportAllowance: z.union([z.string(), z.number()]).transform(String),
+  healthEmployee: z.union([z.string(), z.number()]).transform(String),
+  pensionEmployee: z.union([z.string(), z.number()]).transform(String),
+  solidarityFundThreshold: z.union([z.string(), z.number()]).transform(String),
+  healthEmployer: z.union([z.string(), z.number()]).transform(String),
+  pensionEmployer: z.union([z.string(), z.number()]).transform(String),
+  ccf: z.union([z.string(), z.number()]).transform(String),
+  sena: z.union([z.string(), z.number()]).transform(String),
+  icbf: z.union([z.string(), z.number()]).transform(String),
+  severance: z.union([z.string(), z.number()]).transform(String),
+  serviceBonus: z.union([z.string(), z.number()]).transform(String),
+  vacation: z.union([z.string(), z.number()]).transform(String),
+  exonerationThreshold: z.union([z.string(), z.number()]).transform(String),
+});
+
+export type UpdatePayrollParametersInput = z.infer<
+  typeof updatePayrollParametersSchema
+>;

@@ -1,11 +1,12 @@
 import { Link, useMatches } from "@tanstack/react-router";
-import { Users, CreditCard, Box, PieChart } from "lucide-react";
+import { Users, CreditCard, Box, PieChart, Settings } from "lucide-react";
 
 const navItems = [
   { to: "/work", label: "Equipo", icon: Users },
-  { to: "/work/payrolls", label: "Nóminas", icon: CreditCard },
+  { to: "/work/payrolls", label: "Cierres OPEX", icon: CreditCard },
   { to: "/work/ops", label: "Infra & Ops", icon: Box },
   { to: "/work/reports", label: "Reportes", icon: PieChart },
+  { to: "/work/settings", label: "Parámetros", icon: Settings },
 ] as const;
 
 export default function SidebarWork() {

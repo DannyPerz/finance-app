@@ -12,9 +12,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { calculatePayrollCosts } from "@/lib/payroll.utils";
 import { WorkMemberInvoiceSheet } from "@/components/WorkMemberInvoiceSheet";
+import { getPayrollParameters } from "@/server/work.settings.functions";
 
 export const Route = createFileRoute("/work/")({
-  loader: async () => getWorkMembers(),
+  loader: async () => {
+    const members = await getWorkMembers();
+    const params = await getPayrollParameters({
+      data: { year: new Date().getFullYear() },
+    });
+    return { members, params };
+  },
   component: TeamDashboard,
 });
 
@@ -26,7 +33,7 @@ const formatCOP = (n: number | string) =>
   }).format(Number(n));
 
 function TeamDashboard() {
-  const allMembers = Route.useLoaderData();
+  const { members: allMembers, params } = Route.useLoaderData();
   const members = allMembers.filter((m) => m.isActive === "true");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,11 +44,13 @@ function TeamDashboard() {
 
   const [memberToShowDetails, setMemberToShowDetails] = useState<any>(null);
 
-  // Calculate actual costs using the mathematical model
+  // Calculate actual costs using the mathematical model with DB parameters
   const enrichedMembers = members.map((m) => {
     const costs = calculatePayrollCosts(
       parseFloat(m.baseSalary),
       m.contractType,
+      (m.arlLevel as any) || "I",
+      params as any,
     );
     return { ...m, ...costs };
   });
@@ -218,6 +227,7 @@ function TeamDashboard() {
           if (!open) setTimeout(() => setMemberToEdit(null), 200);
         }}
         member={memberToEdit}
+        params={params}
       />
 
       {memberToDelete && (
@@ -234,8 +244,11 @@ function TeamDashboard() {
       {memberToShowDetails && (
         <WorkMemberInvoiceSheet
           open={!!memberToShowDetails}
-          onOpenChange={(open) => !open && setMemberToShowDetails(null)}
+          onOpenChange={(open: boolean) =>
+            !open && setMemberToShowDetails(null)
+          }
           member={memberToShowDetails}
+          params={params}
         />
       )}
     </div>
