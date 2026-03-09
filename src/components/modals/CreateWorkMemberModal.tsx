@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 import { createWorkMember, updateWorkMember } from "@/server/work.functions";
 import { createWorkMemberSchema } from "@/server/schemas";
-import type { CreateWorkMemberInput } from "@/server/schemas";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +34,7 @@ interface Member {
   contractType: string;
   startDate: string;
   baseSalary: string;
+  arlLevel?: "I" | "II" | "III" | "IV" | "V" | string;
 }
 
 interface Props {
@@ -48,7 +48,7 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!member;
 
-  const form = useForm<CreateWorkMemberInput>({
+  const form = useForm({
     resolver: zodResolver(createWorkMemberSchema),
     values: {
       name: member?.name || "",
@@ -57,19 +57,25 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
       contractType: member?.contractType || "Temporal",
       startDate: member?.startDate || new Date().toISOString().split("T")[0],
       baseSalary: member?.baseSalary || "",
+      arlLevel: (member?.arlLevel as "I" | "II" | "III" | "IV" | "V") || "I",
     },
   });
 
   const watchBaseSalary = form.watch("baseSalary");
   const watchContractType = form.watch("contractType");
+  const watchArlLevel = form.watch("arlLevel");
 
   const liveCosts = useMemo(() => {
     const rawNum = Number(watchBaseSalary.replace(/\D/g, ""));
     if (!rawNum || rawNum === 0) return null;
-    return calculatePayrollCosts(rawNum, watchContractType);
-  }, [watchBaseSalary, watchContractType]);
+    return calculatePayrollCosts(
+      rawNum,
+      watchContractType,
+      (watchArlLevel || "I") as "I" | "II" | "III" | "IV" | "V",
+    );
+  }, [watchBaseSalary, watchContractType, watchArlLevel]);
 
-  async function onSubmit(data: CreateWorkMemberInput) {
+  async function onSubmit(data: any) {
     try {
       setIsSubmitting(true);
       if (isEditing && member) {
@@ -184,29 +190,55 @@ export function CreateWorkMemberModal({ open, onOpenChange, member }: Props) {
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="baseSalary">Salario Base (Bruto) Mensual</Label>
-            <Controller
-              name="baseSalary"
-              control={form.control}
-              render={({ field }) => (
-                <Input
-                  id="baseSalary"
-                  inputMode="numeric"
-                  placeholder="Ej. 3.500.000"
-                  value={formatWithDots(field.value || "")}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, "");
-                    field.onChange(raw);
-                  }}
-                />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="baseSalary">Salario Bruto Mensual</Label>
+              <Controller
+                name="baseSalary"
+                control={form.control}
+                render={({ field }) => (
+                  <Input
+                    id="baseSalary"
+                    inputMode="numeric"
+                    placeholder="Ej. 3.500.000"
+                    value={formatWithDots(field.value || "")}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, "");
+                      field.onChange(raw);
+                    }}
+                  />
+                )}
+              />
+              {form.formState.errors.baseSalary && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.baseSalary.message}
+                </p>
               )}
-            />
-            {form.formState.errors.baseSalary && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.baseSalary.message}
-              </p>
-            )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="arlLevel">Nivel ARL Riesgos</Label>
+              <Select
+                onValueChange={(val) =>
+                  form.setValue(
+                    "arlLevel",
+                    val as "I" | "II" | "III" | "IV" | "V",
+                  )
+                }
+                value={form.watch("arlLevel")}
+              >
+                <SelectTrigger id="arlLevel">
+                  <SelectValue placeholder="Selecciona..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="I">Clase I (0.522%)</SelectItem>
+                  <SelectItem value="II">Clase II (1.044%)</SelectItem>
+                  <SelectItem value="III">Clase III (2.436%)</SelectItem>
+                  <SelectItem value="IV">Clase IV (4.350%)</SelectItem>
+                  <SelectItem value="V">Clase V (6.960%)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {liveCosts && (

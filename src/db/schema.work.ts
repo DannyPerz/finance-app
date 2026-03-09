@@ -27,6 +27,7 @@ export const workMembers = pgTable("work_members", {
   endDate: date("end_date"), // For soft-deletes or traceability when a contract ends
   isActive: text("is_active").default("true").notNull(), // 'true' or 'false'
   baseSalary: numeric("base_salary", { precision: 12, scale: 2 }).notNull(),
+  arlLevel: text("arl_level").default("I").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

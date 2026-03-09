@@ -16,6 +16,7 @@ interface Member {
   contractType: string;
   startDate: string;
   baseSalary: string;
+  arlLevel?: string;
 }
 
 interface Props {
@@ -28,6 +29,7 @@ export function WorkMemberInvoiceSheet({ open, onOpenChange, member }: Props) {
   const costs = calculatePayrollCosts(
     parseFloat(member.baseSalary),
     member.contractType,
+    (member.arlLevel || "I") as "I" | "II" | "III" | "IV" | "V",
   );
 
   return (

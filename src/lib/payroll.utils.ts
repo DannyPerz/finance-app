@@ -4,6 +4,8 @@ export type ContractType =
   | "Prestación de Servicios"
   | "Temporal";
 
+export type ArlLevel = "I" | "II" | "III" | "IV" | "V";
+
 export interface PayrollCosts {
   baseSalary: number;
 
@@ -42,6 +44,7 @@ export interface PayrollCosts {
 export function calculatePayrollCosts(
   baseSalary: number,
   contractType: string,
+  arlLevel: ArlLevel = "I",
 ): PayrollCosts {
   // Manejo de Prestación de Servicios: no hay carga prestacional ni deducciones por parte del empleador (el contratista paga su propia seguridad social)
   if (contractType === "Prestación de Servicios") {
@@ -76,7 +79,17 @@ export function calculatePayrollCosts(
   // Asumimos salarios menores a 10 SMMLV por ende aplica exoneración Ley 1819 de 2012 (Salud, SENA, ICBF = 0)
   const employerHealth = 0;
   const employerPension = baseSalary * 0.12;
-  const arl = baseSalary * 0.00522; // Nivel 1
+
+  const arlRates = {
+    I: 0.00522,
+    II: 0.01044,
+    III: 0.02436,
+    IV: 0.0435,
+    V: 0.0696,
+  };
+  const arlPercentage = arlRates[arlLevel] || arlRates["I"];
+
+  const arl = baseSalary * arlPercentage;
   const ccf = baseSalary * 0.04;
   const senaIcbf = 0;
 

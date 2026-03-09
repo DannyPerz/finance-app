@@ -71,6 +71,7 @@ export const createWorkMemberSchema = z.object({
   contractType: z.string().min(1, "El tipo de contrato es requerido"),
   startDate: z.string().min(1, "La fecha de inicio es requerida"),
   baseSalary: z.string().min(1, "El salario base (bruto) es requerido"),
+  arlLevel: z.enum(["I", "II", "III", "IV", "V"]).optional().default("I"),
 });
 
 export type CreateWorkMemberInput = z.infer<typeof createWorkMemberSchema>;
@@ -85,6 +86,7 @@ export const updateWorkMemberSchema = z.object({
   baseSalary: z.string().min(1, "El salario base (bruto) es requerido"),
   isActive: z.string().optional(),
   endDate: z.string().optional().nullable(),
+  arlLevel: z.enum(["I", "II", "III", "IV", "V"]).optional(),
 });
 
 export type UpdateWorkMemberInput = z.infer<typeof updateWorkMemberSchema>;

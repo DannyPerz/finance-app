@@ -20,7 +20,6 @@ import { Route as WorkOpsRouteImport } from './routes/work/ops'
 import { Route as FinanceTransactionsRouteImport } from './routes/finance/transactions'
 import { Route as FinanceSettingsRouteImport } from './routes/finance/settings'
 import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
-import { Route as ApiSeedWorkRouteImport } from './routes/api/seed-work'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
 
 const WorkRoute = WorkRouteImport.update({
@@ -78,11 +77,6 @@ const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => FinanceRoute,
 } as any)
-const ApiSeedWorkRoute = ApiSeedWorkRouteImport.update({
-  id: '/api/seed-work',
-  path: '/api/seed-work',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
   id: '/api/export-csv',
   path: '/api/export-csv',
@@ -94,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/finance': typeof FinanceRouteWithChildren
   '/work': typeof WorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
@@ -107,7 +100,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
@@ -123,7 +115,6 @@ export interface FileRoutesById {
   '/finance': typeof FinanceRouteWithChildren
   '/work': typeof WorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/api/seed-work': typeof ApiSeedWorkRoute
   '/finance/categories': typeof FinanceCategoriesRoute
   '/finance/settings': typeof FinanceSettingsRoute
   '/finance/transactions': typeof FinanceTransactionsRoute
@@ -140,7 +131,6 @@ export interface FileRouteTypes {
     | '/finance'
     | '/work'
     | '/api/export-csv'
-    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
@@ -153,7 +143,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api/export-csv'
-    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
@@ -168,7 +157,6 @@ export interface FileRouteTypes {
     | '/finance'
     | '/work'
     | '/api/export-csv'
-    | '/api/seed-work'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
@@ -184,7 +172,6 @@ export interface RootRouteChildren {
   FinanceRoute: typeof FinanceRouteWithChildren
   WorkRoute: typeof WorkRouteWithChildren
   ApiExportCsvRoute: typeof ApiExportCsvRoute
-  ApiSeedWorkRoute: typeof ApiSeedWorkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -266,13 +253,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceCategoriesRouteImport
       parentRoute: typeof FinanceRoute
     }
-    '/api/seed-work': {
-      id: '/api/seed-work'
-      path: '/api/seed-work'
-      fullPath: '/api/seed-work'
-      preLoaderRoute: typeof ApiSeedWorkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/export-csv': {
       id: '/api/export-csv'
       path: '/api/export-csv'
@@ -321,7 +301,6 @@ const rootRouteChildren: RootRouteChildren = {
   FinanceRoute: FinanceRouteWithChildren,
   WorkRoute: WorkRouteWithChildren,
   ApiExportCsvRoute: ApiExportCsvRoute,
-  ApiSeedWorkRoute: ApiSeedWorkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
