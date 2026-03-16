@@ -30,6 +30,8 @@ export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -77,3 +79,4 @@ export const transactions = pgTable("transactions", {
 
 // ─── Exports from Other Suites ───────────────────────────
 export * from "./schema.work";
+export * from "./auth-schema";
