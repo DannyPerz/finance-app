@@ -8,11 +8,12 @@ import {
   deleteTransactionSchema,
 } from "./schemas";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 // ─── List Transactions ───────────────────────────────────
 
 export const getTransactions = createServerFn().handler(async () => {
+  const userId = await getAuthUserId();
   const result = await db
     .select({
       id: transactions.id,
@@ -29,7 +30,7 @@ export const getTransactions = createServerFn().handler(async () => {
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(eq(transactions.userId, TEMP_USER_ID))
+    .where(eq(transactions.userId, userId))
     .orderBy(desc(transactions.date), desc(transactions.createdAt));
   return result;
 });
@@ -39,10 +40,11 @@ export const getTransactions = createServerFn().handler(async () => {
 export const createTransaction = createServerFn({ method: "POST" })
   .inputValidator(createTransactionSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [newTx] = await db
       .insert(transactions)
       .values({
-        userId: TEMP_USER_ID,
+        userId,
         categoryId: data.categoryId,
         type: data.type,
         amount: data.amount,
@@ -60,6 +62,7 @@ export const createTransaction = createServerFn({ method: "POST" })
 export const updateTransaction = createServerFn({ method: "POST" })
   .inputValidator(updateTransactionSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [updated] = await db
       .update(transactions)
       .set({
@@ -74,7 +77,7 @@ export const updateTransaction = createServerFn({ method: "POST" })
       .where(
         and(
           eq(transactions.id, data.id),
-          eq(transactions.userId, TEMP_USER_ID),
+          eq(transactions.userId, userId),
         ),
       )
       .returning();
@@ -86,12 +89,13 @@ export const updateTransaction = createServerFn({ method: "POST" })
 export const deleteTransaction = createServerFn({ method: "POST" })
   .inputValidator(deleteTransactionSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     await db
       .delete(transactions)
       .where(
         and(
           eq(transactions.id, data.id),
-          eq(transactions.userId, TEMP_USER_ID),
+          eq(transactions.userId, userId),
         ),
       );
     return { success: true };

@@ -9,14 +9,16 @@ import {
 } from "../db/schema";
 import { calculatePayrollCosts } from "../lib/payroll.utils";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 export const getOpexExecutiveReport = createServerFn({ method: "GET" }).handler(
   async () => {
+    const userId = await getAuthUserId();
+
     // 1. Current Infra Run Rate
     const infraExpenses = await db.query.workOpsExpenses.findMany({
       where: and(
-        eq(workOpsExpenses.userId, TEMP_USER_ID),
+        eq(workOpsExpenses.userId, userId),
         eq(workOpsExpenses.isActive, "true"),
       ),
     });
@@ -29,7 +31,7 @@ export const getOpexExecutiveReport = createServerFn({ method: "GET" }).handler(
     // 2. Current Talent Run Rate
     const activeMembers = await db.query.workMembers.findMany({
       where: and(
-        eq(workMembers.userId, TEMP_USER_ID),
+        eq(workMembers.userId, userId),
         eq(workMembers.isActive, "true"),
       ),
     });
@@ -37,7 +39,7 @@ export const getOpexExecutiveReport = createServerFn({ method: "GET" }).handler(
     const currentYear = new Date().getFullYear();
     const params = await db.query.workPayrollParameters.findFirst({
       where: and(
-        eq(workPayrollParameters.userId, TEMP_USER_ID),
+        eq(workPayrollParameters.userId, userId),
         eq(workPayrollParameters.year, String(currentYear)),
       ),
     });
@@ -57,7 +59,7 @@ export const getOpexExecutiveReport = createServerFn({ method: "GET" }).handler(
 
     // 3. Historical Talent Costs from Payroll Snapshots
     const rawHistoricalPayrolls = await db.query.workPayrolls.findMany({
-      where: eq(workPayrolls.userId, TEMP_USER_ID),
+      where: eq(workPayrolls.userId, userId),
     });
 
     // Group dynamically

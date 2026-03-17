@@ -9,134 +9,172 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkRouteImport } from './routes/work'
-import { Route as FinanceRouteImport } from './routes/finance'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkIndexRouteImport } from './routes/work/index'
-import { Route as FinanceIndexRouteImport } from './routes/finance/index'
-import { Route as WorkSettingsRouteImport } from './routes/work/settings'
-import { Route as WorkReportsRouteImport } from './routes/work/reports'
-import { Route as WorkPayrollsRouteImport } from './routes/work/payrolls'
-import { Route as WorkOpsRouteImport } from './routes/work/ops'
-import { Route as FinanceTransactionsRouteImport } from './routes/finance/transactions'
-import { Route as FinanceSettingsRouteImport } from './routes/finance/settings'
-import { Route as FinanceCategoriesRouteImport } from './routes/finance/categories'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
+import { Route as ProtectedWorkRouteImport } from './routes/_protected/work'
+import { Route as ProtectedFinanceRouteImport } from './routes/_protected/finance'
+import { Route as ProtectedWorkIndexRouteImport } from './routes/_protected/work/index'
+import { Route as ProtectedFinanceIndexRouteImport } from './routes/_protected/finance/index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ProtectedWorkSettingsRouteImport } from './routes/_protected/work/settings'
+import { Route as ProtectedWorkReportsRouteImport } from './routes/_protected/work/reports'
+import { Route as ProtectedWorkPayrollsRouteImport } from './routes/_protected/work/payrolls'
+import { Route as ProtectedWorkOpsRouteImport } from './routes/_protected/work/ops'
+import { Route as ProtectedFinanceTransactionsRouteImport } from './routes/_protected/finance/transactions'
+import { Route as ProtectedFinanceSettingsRouteImport } from './routes/_protected/finance/settings'
+import { Route as ProtectedFinanceCategoriesRouteImport } from './routes/_protected/finance/categories'
 
-const WorkRoute = WorkRouteImport.update({
-  id: '/work',
-  path: '/work',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FinanceRoute = FinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ProtectedRoute = ProtectedRouteImport.update({
+  id: '/_protected',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkIndexRoute = WorkIndexRouteImport.update({
+const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => WorkRoute,
-} as any)
-const FinanceIndexRoute = FinanceIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const WorkSettingsRoute = WorkSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => WorkRoute,
-} as any)
-const WorkReportsRoute = WorkReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => WorkRoute,
-} as any)
-const WorkPayrollsRoute = WorkPayrollsRouteImport.update({
-  id: '/payrolls',
-  path: '/payrolls',
-  getParentRoute: () => WorkRoute,
-} as any)
-const WorkOpsRoute = WorkOpsRouteImport.update({
-  id: '/ops',
-  path: '/ops',
-  getParentRoute: () => WorkRoute,
-} as any)
-const FinanceTransactionsRoute = FinanceTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceSettingsRoute = FinanceSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceCategoriesRoute = FinanceCategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
-  getParentRoute: () => FinanceRoute,
+  getParentRoute: () => ProtectedRoute,
 } as any)
 const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
   id: '/api/export-csv',
   path: '/api/export-csv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedWorkRoute = ProtectedWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedFinanceRoute = ProtectedFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedWorkIndexRoute = ProtectedWorkIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedWorkRoute,
+} as any)
+const ProtectedFinanceIndexRoute = ProtectedFinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedFinanceRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedWorkSettingsRoute = ProtectedWorkSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => ProtectedWorkRoute,
+} as any)
+const ProtectedWorkReportsRoute = ProtectedWorkReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => ProtectedWorkRoute,
+} as any)
+const ProtectedWorkPayrollsRoute = ProtectedWorkPayrollsRouteImport.update({
+  id: '/payrolls',
+  path: '/payrolls',
+  getParentRoute: () => ProtectedWorkRoute,
+} as any)
+const ProtectedWorkOpsRoute = ProtectedWorkOpsRouteImport.update({
+  id: '/ops',
+  path: '/ops',
+  getParentRoute: () => ProtectedWorkRoute,
+} as any)
+const ProtectedFinanceTransactionsRoute =
+  ProtectedFinanceTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => ProtectedFinanceRoute,
+  } as any)
+const ProtectedFinanceSettingsRoute =
+  ProtectedFinanceSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => ProtectedFinanceRoute,
+  } as any)
+const ProtectedFinanceCategoriesRoute =
+  ProtectedFinanceCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => ProtectedFinanceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/finance': typeof FinanceRouteWithChildren
-  '/work': typeof WorkRouteWithChildren
+  '/': typeof ProtectedIndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/finance': typeof ProtectedFinanceRouteWithChildren
+  '/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/finance/categories': typeof FinanceCategoriesRoute
-  '/finance/settings': typeof FinanceSettingsRoute
-  '/finance/transactions': typeof FinanceTransactionsRoute
-  '/work/ops': typeof WorkOpsRoute
-  '/work/payrolls': typeof WorkPayrollsRoute
-  '/work/reports': typeof WorkReportsRoute
-  '/work/settings': typeof WorkSettingsRoute
-  '/finance/': typeof FinanceIndexRoute
-  '/work/': typeof WorkIndexRoute
+  '/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/finance/settings': typeof ProtectedFinanceSettingsRoute
+  '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
+  '/work/ops': typeof ProtectedWorkOpsRoute
+  '/work/payrolls': typeof ProtectedWorkPayrollsRoute
+  '/work/reports': typeof ProtectedWorkReportsRoute
+  '/work/settings': typeof ProtectedWorkSettingsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/finance/': typeof ProtectedFinanceIndexRoute
+  '/work/': typeof ProtectedWorkIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/finance/categories': typeof FinanceCategoriesRoute
-  '/finance/settings': typeof FinanceSettingsRoute
-  '/finance/transactions': typeof FinanceTransactionsRoute
-  '/work/ops': typeof WorkOpsRoute
-  '/work/payrolls': typeof WorkPayrollsRoute
-  '/work/reports': typeof WorkReportsRoute
-  '/work/settings': typeof WorkSettingsRoute
-  '/finance': typeof FinanceIndexRoute
-  '/work': typeof WorkIndexRoute
+  '/': typeof ProtectedIndexRoute
+  '/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/finance/settings': typeof ProtectedFinanceSettingsRoute
+  '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
+  '/work/ops': typeof ProtectedWorkOpsRoute
+  '/work/payrolls': typeof ProtectedWorkPayrollsRoute
+  '/work/reports': typeof ProtectedWorkReportsRoute
+  '/work/settings': typeof ProtectedWorkSettingsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/finance': typeof ProtectedFinanceIndexRoute
+  '/work': typeof ProtectedWorkIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/finance': typeof FinanceRouteWithChildren
-  '/work': typeof WorkRouteWithChildren
+  '/_protected': typeof ProtectedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/_protected/finance': typeof ProtectedFinanceRouteWithChildren
+  '/_protected/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
-  '/finance/categories': typeof FinanceCategoriesRoute
-  '/finance/settings': typeof FinanceSettingsRoute
-  '/finance/transactions': typeof FinanceTransactionsRoute
-  '/work/ops': typeof WorkOpsRoute
-  '/work/payrolls': typeof WorkPayrollsRoute
-  '/work/reports': typeof WorkReportsRoute
-  '/work/settings': typeof WorkSettingsRoute
-  '/finance/': typeof FinanceIndexRoute
-  '/work/': typeof WorkIndexRoute
+  '/_protected/': typeof ProtectedIndexRoute
+  '/_protected/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/_protected/finance/settings': typeof ProtectedFinanceSettingsRoute
+  '/_protected/finance/transactions': typeof ProtectedFinanceTransactionsRoute
+  '/_protected/work/ops': typeof ProtectedWorkOpsRoute
+  '/_protected/work/payrolls': typeof ProtectedWorkPayrollsRoute
+  '/_protected/work/reports': typeof ProtectedWorkReportsRoute
+  '/_protected/work/settings': typeof ProtectedWorkSettingsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_protected/finance/': typeof ProtectedFinanceIndexRoute
+  '/_protected/work/': typeof ProtectedWorkIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
+    | '/register'
     | '/finance'
     | '/work'
     | '/api/export-csv'
@@ -147,12 +185,15 @@ export interface FileRouteTypes {
     | '/work/payrolls'
     | '/work/reports'
     | '/work/settings'
+    | '/api/auth/$'
     | '/finance/'
     | '/work/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/login'
+    | '/register'
     | '/api/export-csv'
+    | '/'
     | '/finance/categories'
     | '/finance/settings'
     | '/finance/transactions'
@@ -160,117 +201,67 @@ export interface FileRouteTypes {
     | '/work/payrolls'
     | '/work/reports'
     | '/work/settings'
+    | '/api/auth/$'
     | '/finance'
     | '/work'
   id:
     | '__root__'
-    | '/'
-    | '/finance'
-    | '/work'
+    | '/_protected'
+    | '/login'
+    | '/register'
+    | '/_protected/finance'
+    | '/_protected/work'
     | '/api/export-csv'
-    | '/finance/categories'
-    | '/finance/settings'
-    | '/finance/transactions'
-    | '/work/ops'
-    | '/work/payrolls'
-    | '/work/reports'
-    | '/work/settings'
-    | '/finance/'
-    | '/work/'
+    | '/_protected/'
+    | '/_protected/finance/categories'
+    | '/_protected/finance/settings'
+    | '/_protected/finance/transactions'
+    | '/_protected/work/ops'
+    | '/_protected/work/payrolls'
+    | '/_protected/work/reports'
+    | '/_protected/work/settings'
+    | '/api/auth/$'
+    | '/_protected/finance/'
+    | '/_protected/work/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  FinanceRoute: typeof FinanceRouteWithChildren
-  WorkRoute: typeof WorkRouteWithChildren
+  ProtectedRoute: typeof ProtectedRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   ApiExportCsvRoute: typeof ApiExportCsvRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/work': {
-      id: '/work'
-      path: '/work'
-      fullPath: '/work'
-      preLoaderRoute: typeof WorkRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/finance': {
-      id: '/finance'
-      path: '/finance'
-      fullPath: '/finance'
-      preLoaderRoute: typeof FinanceRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ProtectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/': {
+      id: '/_protected/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/work/': {
-      id: '/work/'
-      path: '/'
-      fullPath: '/work/'
-      preLoaderRoute: typeof WorkIndexRouteImport
-      parentRoute: typeof WorkRoute
-    }
-    '/finance/': {
-      id: '/finance/'
-      path: '/'
-      fullPath: '/finance/'
-      preLoaderRoute: typeof FinanceIndexRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/work/settings': {
-      id: '/work/settings'
-      path: '/settings'
-      fullPath: '/work/settings'
-      preLoaderRoute: typeof WorkSettingsRouteImport
-      parentRoute: typeof WorkRoute
-    }
-    '/work/reports': {
-      id: '/work/reports'
-      path: '/reports'
-      fullPath: '/work/reports'
-      preLoaderRoute: typeof WorkReportsRouteImport
-      parentRoute: typeof WorkRoute
-    }
-    '/work/payrolls': {
-      id: '/work/payrolls'
-      path: '/payrolls'
-      fullPath: '/work/payrolls'
-      preLoaderRoute: typeof WorkPayrollsRouteImport
-      parentRoute: typeof WorkRoute
-    }
-    '/work/ops': {
-      id: '/work/ops'
-      path: '/ops'
-      fullPath: '/work/ops'
-      preLoaderRoute: typeof WorkOpsRouteImport
-      parentRoute: typeof WorkRoute
-    }
-    '/finance/transactions': {
-      id: '/finance/transactions'
-      path: '/transactions'
-      fullPath: '/finance/transactions'
-      preLoaderRoute: typeof FinanceTransactionsRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/finance/settings': {
-      id: '/finance/settings'
-      path: '/settings'
-      fullPath: '/finance/settings'
-      preLoaderRoute: typeof FinanceSettingsRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/finance/categories': {
-      id: '/finance/categories'
-      path: '/categories'
-      fullPath: '/finance/categories'
-      preLoaderRoute: typeof FinanceCategoriesRouteImport
-      parentRoute: typeof FinanceRoute
+      preLoaderRoute: typeof ProtectedIndexRouteImport
+      parentRoute: typeof ProtectedRoute
     }
     '/api/export-csv': {
       id: '/api/export-csv'
@@ -279,49 +270,152 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExportCsvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/work': {
+      id: '/_protected/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof ProtectedWorkRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/finance': {
+      id: '/_protected/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof ProtectedFinanceRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/work/': {
+      id: '/_protected/work/'
+      path: '/'
+      fullPath: '/work/'
+      preLoaderRoute: typeof ProtectedWorkIndexRouteImport
+      parentRoute: typeof ProtectedWorkRoute
+    }
+    '/_protected/finance/': {
+      id: '/_protected/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof ProtectedFinanceIndexRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/work/settings': {
+      id: '/_protected/work/settings'
+      path: '/settings'
+      fullPath: '/work/settings'
+      preLoaderRoute: typeof ProtectedWorkSettingsRouteImport
+      parentRoute: typeof ProtectedWorkRoute
+    }
+    '/_protected/work/reports': {
+      id: '/_protected/work/reports'
+      path: '/reports'
+      fullPath: '/work/reports'
+      preLoaderRoute: typeof ProtectedWorkReportsRouteImport
+      parentRoute: typeof ProtectedWorkRoute
+    }
+    '/_protected/work/payrolls': {
+      id: '/_protected/work/payrolls'
+      path: '/payrolls'
+      fullPath: '/work/payrolls'
+      preLoaderRoute: typeof ProtectedWorkPayrollsRouteImport
+      parentRoute: typeof ProtectedWorkRoute
+    }
+    '/_protected/work/ops': {
+      id: '/_protected/work/ops'
+      path: '/ops'
+      fullPath: '/work/ops'
+      preLoaderRoute: typeof ProtectedWorkOpsRouteImport
+      parentRoute: typeof ProtectedWorkRoute
+    }
+    '/_protected/finance/transactions': {
+      id: '/_protected/finance/transactions'
+      path: '/transactions'
+      fullPath: '/finance/transactions'
+      preLoaderRoute: typeof ProtectedFinanceTransactionsRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
+    '/_protected/finance/settings': {
+      id: '/_protected/finance/settings'
+      path: '/settings'
+      fullPath: '/finance/settings'
+      preLoaderRoute: typeof ProtectedFinanceSettingsRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
+    '/_protected/finance/categories': {
+      id: '/_protected/finance/categories'
+      path: '/categories'
+      fullPath: '/finance/categories'
+      preLoaderRoute: typeof ProtectedFinanceCategoriesRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
   }
 }
 
-interface FinanceRouteChildren {
-  FinanceCategoriesRoute: typeof FinanceCategoriesRoute
-  FinanceSettingsRoute: typeof FinanceSettingsRoute
-  FinanceTransactionsRoute: typeof FinanceTransactionsRoute
-  FinanceIndexRoute: typeof FinanceIndexRoute
+interface ProtectedFinanceRouteChildren {
+  ProtectedFinanceCategoriesRoute: typeof ProtectedFinanceCategoriesRoute
+  ProtectedFinanceSettingsRoute: typeof ProtectedFinanceSettingsRoute
+  ProtectedFinanceTransactionsRoute: typeof ProtectedFinanceTransactionsRoute
+  ProtectedFinanceIndexRoute: typeof ProtectedFinanceIndexRoute
 }
 
-const FinanceRouteChildren: FinanceRouteChildren = {
-  FinanceCategoriesRoute: FinanceCategoriesRoute,
-  FinanceSettingsRoute: FinanceSettingsRoute,
-  FinanceTransactionsRoute: FinanceTransactionsRoute,
-  FinanceIndexRoute: FinanceIndexRoute,
+const ProtectedFinanceRouteChildren: ProtectedFinanceRouteChildren = {
+  ProtectedFinanceCategoriesRoute: ProtectedFinanceCategoriesRoute,
+  ProtectedFinanceSettingsRoute: ProtectedFinanceSettingsRoute,
+  ProtectedFinanceTransactionsRoute: ProtectedFinanceTransactionsRoute,
+  ProtectedFinanceIndexRoute: ProtectedFinanceIndexRoute,
 }
 
-const FinanceRouteWithChildren =
-  FinanceRoute._addFileChildren(FinanceRouteChildren)
+const ProtectedFinanceRouteWithChildren =
+  ProtectedFinanceRoute._addFileChildren(ProtectedFinanceRouteChildren)
 
-interface WorkRouteChildren {
-  WorkOpsRoute: typeof WorkOpsRoute
-  WorkPayrollsRoute: typeof WorkPayrollsRoute
-  WorkReportsRoute: typeof WorkReportsRoute
-  WorkSettingsRoute: typeof WorkSettingsRoute
-  WorkIndexRoute: typeof WorkIndexRoute
+interface ProtectedWorkRouteChildren {
+  ProtectedWorkOpsRoute: typeof ProtectedWorkOpsRoute
+  ProtectedWorkPayrollsRoute: typeof ProtectedWorkPayrollsRoute
+  ProtectedWorkReportsRoute: typeof ProtectedWorkReportsRoute
+  ProtectedWorkSettingsRoute: typeof ProtectedWorkSettingsRoute
+  ProtectedWorkIndexRoute: typeof ProtectedWorkIndexRoute
 }
 
-const WorkRouteChildren: WorkRouteChildren = {
-  WorkOpsRoute: WorkOpsRoute,
-  WorkPayrollsRoute: WorkPayrollsRoute,
-  WorkReportsRoute: WorkReportsRoute,
-  WorkSettingsRoute: WorkSettingsRoute,
-  WorkIndexRoute: WorkIndexRoute,
+const ProtectedWorkRouteChildren: ProtectedWorkRouteChildren = {
+  ProtectedWorkOpsRoute: ProtectedWorkOpsRoute,
+  ProtectedWorkPayrollsRoute: ProtectedWorkPayrollsRoute,
+  ProtectedWorkReportsRoute: ProtectedWorkReportsRoute,
+  ProtectedWorkSettingsRoute: ProtectedWorkSettingsRoute,
+  ProtectedWorkIndexRoute: ProtectedWorkIndexRoute,
 }
 
-const WorkRouteWithChildren = WorkRoute._addFileChildren(WorkRouteChildren)
+const ProtectedWorkRouteWithChildren = ProtectedWorkRoute._addFileChildren(
+  ProtectedWorkRouteChildren,
+)
+
+interface ProtectedRouteChildren {
+  ProtectedFinanceRoute: typeof ProtectedFinanceRouteWithChildren
+  ProtectedWorkRoute: typeof ProtectedWorkRouteWithChildren
+  ProtectedIndexRoute: typeof ProtectedIndexRoute
+}
+
+const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedFinanceRoute: ProtectedFinanceRouteWithChildren,
+  ProtectedWorkRoute: ProtectedWorkRouteWithChildren,
+  ProtectedIndexRoute: ProtectedIndexRoute,
+}
+
+const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
+  ProtectedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  FinanceRoute: FinanceRouteWithChildren,
-  WorkRoute: WorkRouteWithChildren,
+  ProtectedRoute: ProtectedRouteWithChildren,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   ApiExportCsvRoute: ApiExportCsvRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

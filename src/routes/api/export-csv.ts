@@ -3,12 +3,20 @@ import { db } from "@/db";
 import { transactions, categories } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getRequest } from "@tanstack/react-start/server";
+import { auth } from "@/lib/auth";
 
 export const Route = createFileRoute("/api/export-csv")({
   server: {
     handlers: {
       GET: async () => {
+        const request = getRequest();
+        const session = await auth.api.getSession({ headers: request.headers });
+        if (!session) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+        const userId = session.user.id;
+
         const result = await db
           .select({
             type: transactions.type,
@@ -19,7 +27,7 @@ export const Route = createFileRoute("/api/export-csv")({
           })
           .from(transactions)
           .leftJoin(categories, eq(transactions.categoryId, categories.id))
-          .where(eq(transactions.userId, TEMP_USER_ID))
+          .where(eq(transactions.userId, userId))
           .orderBy(desc(transactions.date), desc(transactions.createdAt));
 
         const header = "sep=;\nTipo;Monto;Descripción;Categoría;Fecha\n";

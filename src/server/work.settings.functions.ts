@@ -5,17 +5,18 @@ import { db } from "../db";
 import { workPayrollParameters } from "../db/schema";
 import { updatePayrollParametersSchema } from "./schemas";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 // ─── Get Payroll Parameters for Year ──────────────────────
 
 export const getPayrollParameters = createServerFn({ method: "GET" })
   .inputValidator(z.object({ year: z.number() }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data: { year } }) => {
+    const userId = await getAuthUserId();
     let settings = await db.query.workPayrollParameters.findFirst({
       where: and(
-        eq(workPayrollParameters.userId, TEMP_USER_ID),
-        eq(workPayrollParameters.year, String(data.year)),
+        eq(workPayrollParameters.userId, userId),
+        eq(workPayrollParameters.year, String(year)),
       ),
     });
 
@@ -24,8 +25,8 @@ export const getPayrollParameters = createServerFn({ method: "GET" })
       const [newSettings] = await db
         .insert(workPayrollParameters)
         .values({
-          userId: TEMP_USER_ID,
-          year: String(data.year),
+          userId,
+          year: String(year),
           // Using default DB values for the rest
         })
         .returning();
@@ -40,6 +41,7 @@ export const getPayrollParameters = createServerFn({ method: "GET" })
 export const updatePayrollParameters = createServerFn({ method: "POST" })
   .inputValidator(updatePayrollParametersSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const { year, ...updates } = data;
 
     const [updated] = await db
@@ -50,7 +52,7 @@ export const updatePayrollParameters = createServerFn({ method: "POST" })
       })
       .where(
         and(
-          eq(workPayrollParameters.userId, TEMP_USER_ID),
+          eq(workPayrollParameters.userId, userId),
           eq(workPayrollParameters.year, String(year)),
         ),
       )

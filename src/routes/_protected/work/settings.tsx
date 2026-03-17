@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { formatWithDots } from "@/lib/utils";
 
-export const Route = createFileRoute("/work/settings")({
+export const Route = createFileRoute("/_protected/work/settings")({
   loader: async () =>
     getPayrollParameters({ data: { year: new Date().getFullYear() } }),
   component: SettingsDashboard,
@@ -81,7 +81,6 @@ function SettingsDashboard() {
           </p>
         </div>
       </div>
-
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* Section 1: Bases y Topes */}
         <div className="glass rounded-xl border border-border overflow-hidden">
@@ -303,5 +302,5 @@ function SettingsDashboard() {
         </div>
       </form>
     </div>
-  );
+  )
 }

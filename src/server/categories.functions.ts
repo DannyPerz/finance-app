@@ -8,24 +8,26 @@ import {
   deleteCategorySchema,
 } from "./schemas";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 export const getCategories = createServerFn().handler(async () => {
-  const result = await db
+  const userId = await getAuthUserId();
+  const allCategories = await db
     .select()
     .from(categories)
-    .where(eq(categories.userId, TEMP_USER_ID))
+    .where(eq(categories.userId, userId))
     .orderBy(categories.name);
-  return result;
+  return allCategories;
 });
 
 export const createCategory = createServerFn({ method: "POST" })
   .inputValidator(createCategorySchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [newCat] = await db
       .insert(categories)
       .values({
-        userId: TEMP_USER_ID,
+        userId,
         name: data.name,
         icon: data.icon,
         type: data.type,
@@ -38,6 +40,7 @@ export const createCategory = createServerFn({ method: "POST" })
 export const updateCategory = createServerFn({ method: "POST" })
   .inputValidator(updateCategorySchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [updated] = await db
       .update(categories)
       .set({
@@ -47,7 +50,7 @@ export const updateCategory = createServerFn({ method: "POST" })
         budget: data.budget || null,
       })
       .where(
-        and(eq(categories.id, data.id), eq(categories.userId, TEMP_USER_ID)),
+        and(eq(categories.id, data.id), eq(categories.userId, userId)),
       )
       .returning();
     return updated;
@@ -56,10 +59,11 @@ export const updateCategory = createServerFn({ method: "POST" })
 export const deleteCategory = createServerFn({ method: "POST" })
   .inputValidator(deleteCategorySchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     await db
       .delete(categories)
       .where(
-        and(eq(categories.id, data.id), eq(categories.userId, TEMP_USER_ID)),
+        and(eq(categories.id, data.id), eq(categories.userId, userId)),
       );
     return { success: true };
   });

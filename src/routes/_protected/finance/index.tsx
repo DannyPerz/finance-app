@@ -7,7 +7,7 @@ import { ExpensesPieChart } from "@/components/charts/ExpensesPieChart";
 import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
 import { ChevronLeft, ChevronRight, ChevronDown, Filter } from "lucide-react";
 
-export const Route = createFileRoute("/finance/")({
+export const Route = createFileRoute("/_protected/finance/")({
   loader: async () => {
     const [transactions, categories] = await Promise.all([
       getTransactions(),

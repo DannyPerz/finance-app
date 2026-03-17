@@ -21,7 +21,7 @@ export const auth = betterAuth({
           // Let PostgreSQL generate UUID with defaultRandom()
           return false;
         }
-        return undefined; // Let Better Auth generate its own IDs for other tables
+        return crypto.randomUUID(); // Auto-generate UUIDs for session, account, verification
       },
     },
   },

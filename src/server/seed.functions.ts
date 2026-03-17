@@ -1,77 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
-import { users, categories, transactions } from "@/db/schema";
+import { categories, transactions } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 export const resetAndSeed = createServerFn({ method: "POST" }).handler(
   async () => {
-    // Drop and recreate tables
-    await db.execute(sql`DROP TABLE IF EXISTS recurring_transactions CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS budgets CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS debts CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS goals CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS exchange_rates CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS transactions CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS accounts CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS categories CASCADE`);
-    await db.execute(sql`DROP TABLE IF EXISTS users CASCADE`);
+    const userId = await getAuthUserId();
 
-    // Drop old enums
-    await db.execute(sql`DROP TYPE IF EXISTS currency CASCADE`);
-    await db.execute(sql`DROP TYPE IF EXISTS account_type CASCADE`);
-    await db.execute(sql`DROP TYPE IF EXISTS frequency CASCADE`);
-    await db.execute(sql`DROP TYPE IF EXISTS transaction_type CASCADE`);
-    await db.execute(
-      sql`CREATE TYPE transaction_type AS ENUM ('income', 'expense')`,
-    );
-    await db.execute(
-      sql`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'category_type') THEN CREATE TYPE category_type AS ENUM ('income', 'expense'); END IF; END $$`,
-    );
-
-    // Recreate tables
-    await db.execute(sql`
-      CREATE TABLE users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        email TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-
-    await db.execute(sql`
-      CREATE TABLE categories (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        name TEXT NOT NULL,
-        icon TEXT NOT NULL DEFAULT 'Circle',
-        type category_type NOT NULL,
-        is_default BOOLEAN NOT NULL DEFAULT FALSE,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-
-    await db.execute(sql`
-      CREATE TABLE transactions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
-        type transaction_type NOT NULL,
-        amount NUMERIC(18,2) NOT NULL,
-        description TEXT,
-        date DATE NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-
-    // Seed user
-    await db.insert(users).values({
-      id: TEMP_USER_ID,
-      email: "demo@finova.app",
-      name: "Danny",
-    });
+    // Instead of dropping tables (which breaks Better Auth foreign keys on the session/accounts tables),
+    // we delete all data *for this specific user* across all tables.
+    // Order matters due to cascades, though Drizzle handles cascaded deletes if configured, it's safer to delete child rows manually.
+    await db.execute(sql`DELETE FROM recurring_transactions WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM budgets WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM debts WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM goals WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM exchange_rates WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM transactions WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM accounts WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM categories WHERE user_id = ${userId}`);
+    // Do NOT delete from users table, we need to keep the user who is logged in!
 
     // Seed categories — icons are Lucide component names
     const incomeCategories = [
@@ -97,13 +46,13 @@ export const resetAndSeed = createServerFn({ method: "POST" }).handler(
     const allCats = [
       ...incomeCategories.map((c) => ({
         ...c,
-        userId: TEMP_USER_ID,
+        userId,
         type: "income" as const,
         isDefault: true,
       })),
       ...expenseCategories.map((c) => ({
         ...c,
-        userId: TEMP_USER_ID,
+        userId,
         type: "expense" as const,
         isDefault: true,
       })),
@@ -302,7 +251,7 @@ export const resetAndSeed = createServerFn({ method: "POST" }).handler(
         txDate = d.toISOString().split("T")[0];
       }
       return {
-        userId: TEMP_USER_ID,
+        userId,
         categoryId: catMap[tx.cat],
         type: tx.type,
         amount: tx.amount,

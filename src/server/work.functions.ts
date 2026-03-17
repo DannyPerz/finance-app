@@ -8,15 +8,16 @@ import {
   softDeleteWorkMemberSchema,
 } from "./schemas";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 // ─── List Work Members ───────────────────────────────────
 
 export const getWorkMembers = createServerFn().handler(async () => {
+  const userId = await getAuthUserId();
   const members = await db
     .select()
     .from(workMembers)
-    .where(eq(workMembers.userId, TEMP_USER_ID))
+    .where(eq(workMembers.userId, userId))
     .orderBy(desc(workMembers.createdAt));
 
   return members.map((m) => ({
@@ -32,9 +33,10 @@ export const getWorkMembers = createServerFn().handler(async () => {
 export const createWorkMember = createServerFn({ method: "POST" })
   .inputValidator(createWorkMemberSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [member] = await db
       .insert(workMembers)
-      .values({ ...data, userId: TEMP_USER_ID })
+      .values({ ...data, userId })
       .returning();
 
     return member;
@@ -45,6 +47,7 @@ export const createWorkMember = createServerFn({ method: "POST" })
 export const updateWorkMember = createServerFn({ method: "POST" })
   .inputValidator(updateWorkMemberSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const { id, ...updateData } = data;
     const [updated] = await db
       .update(workMembers)
@@ -53,7 +56,7 @@ export const updateWorkMember = createServerFn({ method: "POST" })
         endDate: updateData.endDate || null,
         updatedAt: new Date(),
       })
-      .where(and(eq(workMembers.id, id), eq(workMembers.userId, TEMP_USER_ID)))
+      .where(and(eq(workMembers.id, id), eq(workMembers.userId, userId)))
       .returning();
 
     return updated;
@@ -64,6 +67,7 @@ export const updateWorkMember = createServerFn({ method: "POST" })
 export const deleteWorkMember = createServerFn({ method: "POST" })
   .inputValidator(softDeleteWorkMemberSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [deactivated] = await db
       .update(workMembers)
       .set({
@@ -72,7 +76,7 @@ export const deleteWorkMember = createServerFn({ method: "POST" })
         updatedAt: new Date(),
       })
       .where(
-        and(eq(workMembers.id, data.id), eq(workMembers.userId, TEMP_USER_ID)),
+        and(eq(workMembers.id, data.id), eq(workMembers.userId, userId)),
       )
       .returning();
 

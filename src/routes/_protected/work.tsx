@@ -1,14 +1,14 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
-import Sidebar from "@/components/Sidebar";
+import SidebarWork from "@/components/SidebarWork";
 
-export const Route = createFileRoute("/finance")({
-  component: FinanceLayout,
+export const Route = createFileRoute("/_protected/work")({
+  component: WorkLayout,
 });
 
-function FinanceLayout() {
+function WorkLayout() {
   return (
     <div className="flex flex-1">
-      <Sidebar />
+      <SidebarWork />
       <main className="flex-1 w-full lg:pl-64">
         <div className="h-full p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 animate-in-up">
           <Outlet />

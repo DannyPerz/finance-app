@@ -8,12 +8,13 @@ import {
   deleteOpsExpenseSchema,
 } from "./schemas";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 export const getOpsExpenses = createServerFn({ method: "GET" }).handler(
   async () => {
+    const userId = await getAuthUserId();
     const expenses = await db.query.workOpsExpenses.findMany({
-      where: eq(workOpsExpenses.userId, TEMP_USER_ID),
+      where: eq(workOpsExpenses.userId, userId),
       orderBy: [desc(workOpsExpenses.createdAt)],
     });
 
@@ -24,8 +25,9 @@ export const getOpsExpenses = createServerFn({ method: "GET" }).handler(
 export const createOpsExpense = createServerFn({ method: "POST" })
   .inputValidator(createOpsExpenseSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     await db.insert(workOpsExpenses).values({
-      userId: TEMP_USER_ID,
+      userId,
       name: data.name,
       category: data.category,
       amount: data.amount,
@@ -38,6 +40,7 @@ export const createOpsExpense = createServerFn({ method: "POST" })
 export const updateOpsExpense = createServerFn({ method: "POST" })
   .inputValidator(updateOpsExpenseSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     await db
       .update(workOpsExpenses)
       .set({
@@ -51,7 +54,7 @@ export const updateOpsExpense = createServerFn({ method: "POST" })
       .where(
         and(
           eq(workOpsExpenses.id, data.id),
-          eq(workOpsExpenses.userId, TEMP_USER_ID),
+          eq(workOpsExpenses.userId, userId),
         ),
       );
 
@@ -61,12 +64,13 @@ export const updateOpsExpense = createServerFn({ method: "POST" })
 export const deleteOpsExpense = createServerFn({ method: "POST" })
   .inputValidator(deleteOpsExpenseSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     await db
       .delete(workOpsExpenses)
       .where(
         and(
           eq(workOpsExpenses.id, data.id),
-          eq(workOpsExpenses.userId, TEMP_USER_ID),
+          eq(workOpsExpenses.userId, userId),
         ),
       );
 

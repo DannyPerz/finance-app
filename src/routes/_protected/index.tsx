@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_protected/")({
   component: HubPage,
 });
 

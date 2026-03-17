@@ -6,11 +6,12 @@ import { workMembers, workPayrolls, workPayrollParameters } from "../db/schema";
 import { calculatePayrollCosts } from "../lib/payroll.utils";
 import { getPayrollParameters } from "./work.settings.functions";
 
-const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { getAuthUserId } from "./auth.utils";
 
 // ─── Get All Payrolls ────────────────────────────────────
 
 export const getPayrolls = createServerFn().handler(async () => {
+  const userId = await getAuthUserId();
   const allPayrolls = await db
     .select({
       payroll: workPayrolls,
@@ -22,7 +23,7 @@ export const getPayrolls = createServerFn().handler(async () => {
     })
     .from(workPayrolls)
     .innerJoin(workMembers, eq(workPayrolls.memberId, workMembers.id))
-    .where(eq(workPayrolls.userId, TEMP_USER_ID));
+    .where(eq(workPayrolls.userId, userId));
 
   return allPayrolls;
 });
@@ -36,12 +37,13 @@ export const generateMonthlyPayrollSchema = z.object({
 export const generateMonthlyPayroll = createServerFn({ method: "POST" })
   .inputValidator(generateMonthlyPayrollSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     // 0. Extract year from period
     const year = parseInt(data.period.split("-")[0], 10);
     // Fetch the specific parameters for this year directly since this is a server function calling another server function's inner logic
     let params = await db.query.workPayrollParameters.findFirst({
       where: and(
-        eq(workPayrollParameters.userId, TEMP_USER_ID),
+        eq(workPayrollParameters.userId, userId),
         eq(workPayrollParameters.year, String(year)),
       ),
     });
@@ -57,7 +59,7 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
       .from(workMembers)
       .where(
         and(
-          eq(workMembers.userId, TEMP_USER_ID),
+          eq(workMembers.userId, userId),
           eq(workMembers.isActive, "true"),
         ),
       );
@@ -74,7 +76,7 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
       .where(
         and(
           eq(workPayrolls.period, data.period),
-          eq(workPayrolls.userId, TEMP_USER_ID),
+          eq(workPayrolls.userId, userId),
           eq(workPayrolls.status, "pending"),
         ),
       );
@@ -89,7 +91,7 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
       );
 
       return {
-        userId: TEMP_USER_ID,
+        userId: userId,
         memberId: m.id,
         period: data.period,
         grossSalary: costs.baseSalary.toString(),
@@ -116,6 +118,7 @@ export const markPayrollAsPaidSchema = z.object({
 export const markPayrollAsPaid = createServerFn({ method: "POST" })
   .inputValidator(markPayrollAsPaidSchema)
   .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
     const [updated] = await db
       .update(workPayrolls)
       .set({
@@ -126,7 +129,7 @@ export const markPayrollAsPaid = createServerFn({ method: "POST" })
       .where(
         and(
           eq(workPayrolls.id, data.payrollId),
-          eq(workPayrolls.userId, TEMP_USER_ID),
+          eq(workPayrolls.userId, userId),
         ),
       )
       .returning();

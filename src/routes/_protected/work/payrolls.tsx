@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/work/payrolls")({
+export const Route = createFileRoute("/_protected/work/payrolls")({
   loader: async () => getPayrolls(),
   component: PayrollsDashboard,
 });

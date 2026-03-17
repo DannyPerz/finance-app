@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTheme } from "@/components/ThemeProvider";
 
-export const Route = createFileRoute("/finance/settings")({
+export const Route = createFileRoute("/_protected/finance/settings")({
   component: SettingsPage,
 });
 

@@ -5,7 +5,7 @@ import { Server, Grid, Activity } from "lucide-react";
 import { formatWithDots } from "@/lib/utils";
 import { CreateOpsExpenseModal } from "@/components/modals/CreateOpsExpenseModal";
 
-export const Route = createFileRoute("/work/ops")({
+export const Route = createFileRoute("/_protected/work/ops")({
   loader: async () => getOpsExpenses(),
   component: OpsDashboard,
 });

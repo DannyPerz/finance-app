@@ -9,7 +9,7 @@ import { CreateCategoryModal } from "@/components/modals/CreateCategoryModal";
 import { Icon, ICON_OPTIONS } from "@/components/Icon";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
-export const Route = createFileRoute("/finance/categories")({
+export const Route = createFileRoute("/_protected/finance/categories")({
   loader: () => getCategories(),
   component: CategoriesPage,
 });

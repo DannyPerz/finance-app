@@ -14,7 +14,7 @@ import { calculatePayrollCosts } from "@/lib/payroll.utils";
 import { WorkMemberInvoiceSheet } from "@/components/WorkMemberInvoiceSheet";
 import { getPayrollParameters } from "@/server/work.settings.functions";
 
-export const Route = createFileRoute("/work/")({
+export const Route = createFileRoute("/_protected/work/")({
   loader: async () => {
     const members = await getWorkMembers();
     const params = await getPayrollParameters({

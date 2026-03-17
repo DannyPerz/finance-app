@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/Icon";
 import ThemeToggle from "./ThemeToggle";
+import { useSession, signOut } from "@/lib/auth-client";
 
 export default function Header() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.navigate({ to: "/login" });
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
       <div className="flex h-16 items-center px-6">
@@ -91,13 +100,47 @@ export default function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="h-8 w-8 overflow-hidden rounded-full ring-2 ring-border">
-            <img
-              src="https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=b6e3f4"
-              alt="Avatar"
-              className="h-full w-full object-cover"
-            />
-          </div>
+          {/* User Profile */}
+          {session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none">
+                <div className="h-8 w-8 overflow-hidden rounded-full ring-2 ring-border hover:ring-primary/50 transition-all cursor-pointer">
+                  <img
+                    src={`https://api.dicebear.com/9.x/notionists/svg?seed=${session.user.name}&backgroundColor=b6e3f4`}
+                    alt={session.user.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {session.user.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:bg-destructive/10 cursor-pointer"
+                  onClick={handleSignOut}
+                >
+                  <Icon name="LogOut" size={16} className="mr-2" />
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/login"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Iniciar sesión
+            </Link>
+          )}
         </div>
       </div>
     </header>
