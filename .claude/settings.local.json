@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh search:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:tanstack.com)",
+      "Bash(find /c/GitHub/finance-app/node_modules/@tanstack/router-core/dist -name ssr-client*)",
+      "Bash(find /c/GitHub/finance-app/node_modules -name ssr-client*)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-client-core@1.163.2 -name *.ts -o -name *.js)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-client-core@1.163.2 -name hydrateStart*)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-client-core@1.163.2 -name *.ts)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+router-core@1.163.2 -name *.ts)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-server-core*/ -name *.ts)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-plugin-core*/ -name *.ts)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/@tanstack+start-plugin-core*/ -name nitro*)",
+      "Bash(find /c/GitHub/finance-app/src/routes/api -name *.ts -o -name *.tsx)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro-vite-plugin*/src/*.ts)",
+      "WebFetch(domain:nitro.build)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro/src/presets/cloudflare*)",
+      "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro*/dist/presets/cloudflare*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

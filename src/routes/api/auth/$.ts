@@ -9,6 +9,7 @@ export const Route = createFileRoute("/api/auth/$")(
           return auth.handler(request);
         },
         POST: async ({ request }) => {
+          console.log("\n\n=== Better Auth POST ===", request.url);
           return auth.handler(request);
         },
       },

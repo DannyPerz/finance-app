@@ -10,9 +10,17 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
+  server: {
+    hmr: {
+      port: 3001,
+    },
+  },
   plugins: [
     devtools(),
-    nitro({ preset: 'cloudflare-pages', rollupConfig: { external: [/^@sentry\//] } }),
+    nitro({
+      preset: process.env.NODE_ENV === 'production' ? 'cloudflare-pages' : 'node-server',
+      rollupConfig: { external: [/^@sentry\//] },
+    }),
     contentCollections(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),

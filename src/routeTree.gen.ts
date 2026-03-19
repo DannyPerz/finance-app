@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
@@ -27,6 +29,11 @@ import { Route as ProtectedFinanceTransactionsRouteImport } from './routes/_prot
 import { Route as ProtectedFinanceSettingsRouteImport } from './routes/_protected/finance/settings'
 import { Route as ProtectedFinanceCategoriesRouteImport } from './routes/_protected/finance/categories'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -35,6 +42,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedRoute = ProtectedRouteImport.update({
@@ -117,8 +129,10 @@ const ProtectedFinanceCategoriesRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/finance': typeof ProtectedFinanceRouteWithChildren
   '/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
@@ -134,8 +148,10 @@ export interface FileRoutesByFullPath {
   '/work/': typeof ProtectedWorkIndexRoute
 }
 export interface FileRoutesByTo {
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/api/export-csv': typeof ApiExportCsvRoute
   '/': typeof ProtectedIndexRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
@@ -152,8 +168,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_protected/finance': typeof ProtectedFinanceRouteWithChildren
   '/_protected/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
@@ -173,8 +191,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/finance'
     | '/work'
     | '/api/export-csv'
@@ -190,8 +210,10 @@ export interface FileRouteTypes {
     | '/work/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/api/export-csv'
     | '/'
     | '/finance/categories'
@@ -207,8 +229,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_protected'
+    | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/_protected/finance'
     | '/_protected/work'
     | '/api/export-csv'
@@ -227,14 +251,23 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   ProtectedRoute: typeof ProtectedRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiExportCsvRoute: typeof ApiExportCsvRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -247,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected': {
@@ -412,8 +452,10 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   ProtectedRoute: ProtectedRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiExportCsvRoute: ApiExportCsvRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

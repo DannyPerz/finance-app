@@ -10,19 +10,20 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      console.log(`\n\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =`);
+      console.log(`🔐 RESET PASSWORD LINK PARA ${user.email} 🔐`);
+      console.log(`Haz clic en el siguiente enlace para restablecer tu contraseña:`);
+      console.log(url);
+      console.log(`= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =\n\n`);
+    },
   },
   user: {
     modelName: "users",
   },
   advanced: {
     database: {
-      generateId: (options) => {
-        if (options.model === "users") {
-          // Let PostgreSQL generate UUID with defaultRandom()
-          return false;
-        }
-        return crypto.randomUUID(); // Auto-generate UUIDs for session, account, verification
-      },
+      generateId: () => crypto.randomUUID(),
     },
   },
 });
