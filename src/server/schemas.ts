@@ -37,6 +37,20 @@ export const deleteTransactionSchema = z.object({
   id: z.string().uuid(),
 });
 
+export const importTransactionRowSchema = z.object({
+  type: z.enum(transactionTypeValues),
+  amount: z.string().min(1),
+  description: z.string().optional(),
+  categoryId: z.string().uuid().optional(),
+  date: z.string().min(1),
+});
+
+export const importTransactionsSchema = z.object({
+  rows: z.array(importTransactionRowSchema).min(1),
+});
+
+export type ImportTransactionsInput = z.infer<typeof importTransactionsSchema>;
+
 // ─── Category Schemas ────────────────────────────────────
 
 export const createCategorySchema = z.object({

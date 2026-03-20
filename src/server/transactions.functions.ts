@@ -6,6 +6,7 @@ import {
   createTransactionSchema,
   updateTransactionSchema,
   deleteTransactionSchema,
+  importTransactionsSchema,
 } from "./schemas";
 
 import { getAuthUserId } from "./auth.utils";
@@ -82,6 +83,27 @@ export const updateTransaction = createServerFn({ method: "POST" })
       )
       .returning();
     return updated;
+  });
+
+// ─── Import Transactions (bulk) ─────────────────────────
+
+export const importTransactions = createServerFn({ method: "POST" })
+  .inputValidator(importTransactionsSchema)
+  .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
+    await db.insert(transactions).values(
+      data.rows.map((row) => ({
+        userId,
+        categoryId: row.categoryId ?? null,
+        type: row.type,
+        amount: row.amount,
+        description: row.description ?? null,
+        date: row.date,
+        isRecurring: false,
+        recurrence: null,
+      })),
+    );
+    return { imported: data.rows.length };
   });
 
 // ─── Delete Transaction ─────────────────────────────────

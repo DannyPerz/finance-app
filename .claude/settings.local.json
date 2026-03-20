@@ -21,7 +21,8 @@
       "WebFetch(domain:nitro.build)",
       "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro/src/presets/cloudflare*)",
       "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro*/dist/presets/cloudflare*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(head -50 /c/GitHub/finance-app/src/routes/api/auth/[...auth].ts)"
     ]
   }
 }

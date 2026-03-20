@@ -8,6 +8,7 @@ import {
 } from "@/server/transactions.functions";
 import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
+import { ImportTransactionsModal } from "@/components/modals/ImportTransactionsModal";
 import { Pencil, Trash2, Check, X, Download, Repeat } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/transactions")({
@@ -27,6 +28,11 @@ const formatCOP = (n: string | number) =>
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(Number(n));
+
+const formatDate = (iso: string) => {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+};
 
 const formatWithDots = (val: string) => {
   const digits = val.replace(/\D/g, "");
@@ -212,7 +218,7 @@ function TransactionRow({
             {tx.description || "Sin descripción"}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            {tx.categoryName || "Sin categoría"} • {tx.date}
+            {tx.categoryName || "Sin categoría"} • {formatDate(tx.date)}
             {tx.isRecurring && (
               <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
                 <Repeat size={10} />
@@ -286,6 +292,7 @@ function TransactionsPage() {
             <Download size={14} />
             <span className="hidden sm:inline">CSV</span>
           </button>
+          <ImportTransactionsModal categories={categories} />
           <CreateTransactionModal categories={categories} />
         </div>
       </div>
