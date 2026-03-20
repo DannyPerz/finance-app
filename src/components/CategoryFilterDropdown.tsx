@@ -54,15 +54,20 @@ export function CategoryFilterDropdown({
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm transition-colors hover:bg-accent outline-none focus:ring-2 focus:ring-primary/30"
       >
-        <Filter size={14} className="text-muted-foreground" />
-        <span>
-          {selected.size === 0
-            ? "Todas las categorías"
-            : `${selected.size} categoría${selected.size > 1 ? "s" : ""}`}
-        </span>
+        <Filter size={14} className="text-muted-foreground shrink-0" />
+        {selected.size > 0 ? (
+          <>
+            <span className="hidden sm:inline">{`${selected.size} categoría${selected.size > 1 ? "s" : ""}`}</span>
+            <span className="sm:hidden flex items-center justify-center min-w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold px-1">
+              {selected.size}
+            </span>
+          </>
+        ) : (
+          <span className="hidden sm:inline">Todas las categorías</span>
+        )}
         <ChevronDown
           size={14}
-          className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          className={`text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`}
         />
       </button>
 

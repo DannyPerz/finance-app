@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 import {
@@ -16,10 +16,12 @@ import {
   Check,
   X,
   Download,
+  Upload,
   Repeat,
   Search,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/transactions")({
@@ -268,7 +270,7 @@ function TransactionRow({
           {tx.type === "income" ? "+" : "-"}
           {formatCOP(tx.amount)}
         </div>
-        <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex items-center gap-0.5 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
           <button
             onClick={() => setEditing(true)}
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -309,6 +311,18 @@ function TransactionsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (actionsRef.current && !actionsRef.current.contains(e.target as Node))
+        setActionsOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Debounce search 300 ms
   useEffect(() => {
@@ -353,64 +367,94 @@ function TransactionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Movimientos
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm hidden sm:block">
             Historial de ingresos y gastos.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            title="Exportar CSV"
-          >
-            <Download size={14} />
-            <span className="hidden sm:inline">CSV</span>
-          </button>
-          <ImportTransactionsModal categories={categories} />
-          <CreateTransactionModal categories={categories} />
+
+        {/* Split button: New + actions dropdown */}
+        <div className="flex items-stretch shrink-0" ref={actionsRef}>
+          <CreateTransactionModal categories={categories} splitLeft />
+
+          <div className="relative flex">
+            <button
+              onClick={() => setActionsOpen((o) => !o)}
+              className="flex items-center rounded-r-lg border border-l-0 border-primary bg-primary px-2.5 text-primary-foreground transition-colors hover:bg-primary/90"
+              title="Más opciones"
+            >
+              <ChevronDown size={14} className={`transition-transform ${actionsOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {actionsOpen && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-44 rounded-lg border border-border bg-background shadow-lg py-1">
+                <button
+                  onClick={() => { setImportOpen(true); setActionsOpen(false); }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-sm hover:bg-accent transition-colors"
+                >
+                  <Upload size={14} className="text-muted-foreground" />
+                  Importar CSV
+                </button>
+                <button
+                  onClick={() => { handleExportCSV(); setActionsOpen(false); }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-sm hover:bg-accent transition-colors"
+                >
+                  <Download size={14} className="text-muted-foreground" />
+                  Exportar CSV
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      <ImportTransactionsModal
+        categories={categories}
+        open={importOpen}
+        onOpenChange={setImportOpen}
+      />
+
       {/* Filters row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        {/* Type tabs */}
-        <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit shrink-0">
-          {(
-            [
-              { value: "all", label: "Todos" },
-              { value: "income", label: "Ingresos" },
-              { value: "expense", label: "Gastos" },
-            ] as const
-          ).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => handleTypeFilter(opt.value)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                typeFilter === opt.value
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+      <div className="flex flex-col gap-2">
+        {/* Type tabs + Category on same row */}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1 rounded-lg bg-muted p-1 shrink-0">
+            {(
+              [
+                { value: "all", label: "Todos" },
+                { value: "income", label: "Ingresos" },
+                { value: "expense", label: "Gastos" },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handleTypeFilter(opt.value)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  typeFilter === opt.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Category filter */}
+          <CategoryFilterDropdown
+            categories={categories}
+            selected={selectedCategoryIds}
+            onChange={setSelectedCategoryIds}
+            typeFilter={typeFilter}
+          />
         </div>
 
-        {/* Category filter */}
-        <CategoryFilterDropdown
-          categories={categories}
-          selected={selectedCategoryIds}
-          onChange={setSelectedCategoryIds}
-          typeFilter={typeFilter}
-        />
-
-        {/* Search */}
-        <div className="relative flex-1 min-w-0">
+        {/* Search full width */}
+        <div className="relative">
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
@@ -482,7 +526,7 @@ function TransactionsPage() {
             className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
           >
             <ChevronLeft size={15} />
-            Anterior
+            <span className="hidden sm:inline">Anterior</span>
           </button>
 
           <div className="flex items-center gap-1">
@@ -512,7 +556,7 @@ function TransactionsPage() {
             disabled={page === totalPages}
             className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
           >
-            Siguiente
+            <span className="hidden sm:inline">Siguiente</span>
             <ChevronRight size={15} />
           </button>
         </div>

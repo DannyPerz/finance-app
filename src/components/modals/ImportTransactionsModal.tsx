@@ -37,6 +37,8 @@ interface ParsedRow {
 
 interface Props {
   categories: Category[];
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
 }
 
 function parseCSV(text: string, categories: Category[]): ParsedRow[] {
@@ -105,8 +107,10 @@ function parseCSV(text: string, categories: Category[]): ParsedRow[] {
 const formatAmt = (n: string) =>
   n ? new Intl.NumberFormat("es-CO").format(Number(n)) : "";
 
-export function ImportTransactionsModal({ categories }: Props) {
-  const [open, setOpen] = useState(false);
+export function ImportTransactionsModal({ categories, open: openProp, onOpenChange: onOpenChangeProp }: Props) {
+  const [openInternal, setOpenInternal] = useState(false);
+  const open = openProp ?? openInternal;
+  const setOpen = onOpenChangeProp ?? setOpenInternal;
   const [step, setStep] = useState<"upload" | "preview">("upload");
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -166,15 +170,6 @@ export function ImportTransactionsModal({ categories }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        title="Importar CSV"
-      >
-        <Upload size={14} />
-        <span className="hidden sm:inline">Importar</span>
-      </button>
-
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Importar movimientos</DialogTitle>

@@ -43,9 +43,10 @@ interface Category {
 
 interface Props {
   categories: Category[];
+  splitLeft?: boolean;
 }
 
-export function CreateTransactionModal({ categories }: Props) {
+export function CreateTransactionModal({ categories, splitLeft }: Props) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -72,8 +73,8 @@ export function CreateTransactionModal({ categories }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          + Nuevo Movimiento
+        <button className={`bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 ${splitLeft ? "rounded-l-lg h-full" : "rounded-lg"}`}>
+          + Nuevo movimiento
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
