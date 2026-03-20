@@ -1,11 +1,12 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 import { getTransactions } from "@/server/transactions.functions";
 import { getCategories } from "@/server/categories.functions";
 import { ExpensesPieChart } from "@/components/charts/ExpensesPieChart";
 import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
-import { ChevronLeft, ChevronRight, ChevronDown, Filter } from "lucide-react";
+import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/")({
   loader: async () => {
@@ -64,32 +65,6 @@ function Dashboard() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(
     new Set(),
   );
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setCategoryDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  const toggleCategory = (id: string) => {
-    setSelectedCategoryIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const clearCategoryFilter = () => setSelectedCategoryIds(new Set());
 
   const goToPrevMonth = () => {
     if (selectedMonth === 0) {
@@ -309,83 +284,11 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setCategoryDropdownOpen((o) => !o)}
-            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm transition-colors hover:bg-accent outline-none focus:ring-2 focus:ring-primary/30"
-          >
-            <Filter size={14} className="text-muted-foreground" />
-            <span>
-              {selectedCategoryIds.size === 0
-                ? "Todas las categorías"
-                : `${selectedCategoryIds.size} categoría${selectedCategoryIds.size > 1 ? `s` : ``}`}
-            </span>
-            <ChevronDown
-              size={14}
-              className={`text-muted-foreground transition-transform ${categoryDropdownOpen ? `rotate-180` : ``}`}
-            />
-          </button>
-          {categoryDropdownOpen && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-border bg-background shadow-lg py-1 max-h-72 overflow-y-auto">
-              {selectedCategoryIds.size > 0 && (
-                <button
-                  onClick={clearCategoryFilter}
-                  className="w-full text-left px-3 py-1.5 text-xs text-primary hover:bg-accent transition-colors"
-                >
-                  ✕ Limpiar filtro
-                </button>
-              )}
-              <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Ingresos
-              </p>
-              {categories
-                .filter((c) => c.type === "income")
-                .map((c) => (
-                  <label
-                    key={c.id}
-                    className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedCategoryIds.has(c.id)}
-                      onChange={() => toggleCategory(c.id)}
-                      className="rounded border-border accent-[oklch(0.75_0.18_175)]"
-                    />
-                    <Icon
-                      name={c.icon}
-                      size={14}
-                      className="text-muted-foreground"
-                    />
-                    {c.name}
-                  </label>
-                ))}
-              <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1">
-                Gastos
-              </p>
-              {categories
-                .filter((c) => c.type === "expense")
-                .map((c) => (
-                  <label
-                    key={c.id}
-                    className="flex items-center gap-2.5 px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedCategoryIds.has(c.id)}
-                      onChange={() => toggleCategory(c.id)}
-                      className="rounded border-border accent-[oklch(0.75_0.18_175)]"
-                    />
-                    <Icon
-                      name={c.icon}
-                      size={14}
-                      className="text-muted-foreground"
-                    />
-                    {c.name}
-                  </label>
-                ))}
-            </div>
-          )}
-        </div>
+        <CategoryFilterDropdown
+          categories={categories}
+          selected={selectedCategoryIds}
+          onChange={setSelectedCategoryIds}
+        />
       </div>
 
       {/* Metrics */}

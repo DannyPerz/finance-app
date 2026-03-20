@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 import {
@@ -9,7 +9,18 @@ import {
 import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
 import { ImportTransactionsModal } from "@/components/modals/ImportTransactionsModal";
-import { Pencil, Trash2, Check, X, Download, Repeat } from "lucide-react";
+import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
+import {
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  Download,
+  Repeat,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/transactions")({
   loader: async () => {
@@ -260,20 +271,70 @@ function TransactionRow({
   );
 }
 
+const PAGE_SIZE = 25;
+
+function pageRange(current: number, total: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | "…")[] = [1];
+  if (current > 3) pages.push("…");
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++)
+    pages.push(p);
+  if (current < total - 2) pages.push("…");
+  pages.push(total);
+  return pages;
+}
+
 function TransactionsPage() {
   const { transactions, categories } = Route.useLoaderData();
-  const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">("all");
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set());
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const filtered = transactions.filter((tx) =>
-    filter === "all" ? true : tx.type === filter,
-  );
+  // Debounce search 300 ms
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const handleExportCSV = () => {
-    window.open("/api/export-csv", "_blank");
+  // Reset to page 1 on any filter change
+  useEffect(() => { setPage(1); }, [typeFilter, selectedCategoryIds, search]);
+
+  // When type changes, reset category selection
+  const handleTypeFilter = (v: "all" | "income" | "expense") => {
+    setTypeFilter(v);
+    setSelectedCategoryIds(new Set());
+  };
+
+  const filtered = transactions.filter((tx) => {
+    if (typeFilter !== "all" && tx.type !== typeFilter) return false;
+    if (selectedCategoryIds.size > 0 && !selectedCategoryIds.has(tx.categoryId ?? "")) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      return (
+        tx.description?.toLowerCase().includes(q) ||
+        tx.categoryName?.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasActiveFilters = typeFilter !== "all" || selectedCategoryIds.size > 0 || search !== "";
+
+  const handleExportCSV = () => window.open("/api/export-csv", "_blank");
+
+  const clearFilters = () => {
+    setTypeFilter("all");
+    setSelectedCategoryIds(new Set());
+    setSearchInput("");
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
@@ -297,39 +358,84 @@ function TransactionsPage() {
         </div>
       </div>
 
-      {/* Type filter */}
-      <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
-        {(
-          [
-            { value: "all", label: "Todos" },
-            { value: "income", label: "Ingresos" },
-            { value: "expense", label: "Gastos" },
-          ] as const
-        ).map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              filter === opt.value
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
+      {/* Filters row */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Type tabs */}
+        <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit shrink-0">
+          {(
+            [
+              { value: "all", label: "Todos" },
+              { value: "income", label: "Ingresos" },
+              { value: "expense", label: "Gastos" },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => handleTypeFilter(opt.value)}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                typeFilter === opt.value
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Category filter */}
+        <CategoryFilterDropdown
+          categories={categories}
+          selected={selectedCategoryIds}
+          onChange={setSelectedCategoryIds}
+          typeFilter={typeFilter}
+        />
+
+        {/* Search */}
+        <div className="relative flex-1 min-w-0">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por descripción o categoría…"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
+          />
+        </div>
+
       </div>
 
-      {filtered.length === 0 ? (
+      {/* Results count */}
+      <p className="text-xs text-muted-foreground -mt-2">
+        {filtered.length} movimiento{filtered.length !== 1 ? "s" : ""}
+        {hasActiveFilters && " encontrados"}
+        {totalPages > 1 && ` · página ${page} de ${totalPages}`}
+      </p>
+
+      {/* List */}
+      {paginated.length === 0 ? (
         <div className="glass rounded-xl p-10 text-center border-dashed">
           <p className="text-muted-foreground">
-            No hay movimientos registrados.
+            {hasActiveFilters
+              ? "Ningún movimiento coincide con los filtros."
+              : "No hay movimientos registrados."}
           </p>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="mt-3 text-sm text-primary hover:underline"
+            >
+              Limpiar filtros
+            </button>
+          )}
         </div>
       ) : (
         <div className="glass rounded-xl p-4 sm:p-6 shadow-sm">
           <div className="space-y-0">
-            {filtered.map((tx) => (
+            {paginated.map((tx) => (
               <TransactionRow
                 key={tx.id}
                 tx={tx as Transaction}
@@ -337,6 +443,51 @@ function TransactionsPage() {
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <ChevronLeft size={15} />
+            Anterior
+          </button>
+
+          <div className="flex items-center gap-1">
+            {pageRange(page, totalPages).map((p, i) =>
+              p === "…" ? (
+                <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground text-sm">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`min-w-8 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+                    page === p
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                >
+                  {p}
+                </button>
+              ),
+            )}
+          </div>
+
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+          >
+            Siguiente
+            <ChevronRight size={15} />
+          </button>
         </div>
       )}
     </div>
