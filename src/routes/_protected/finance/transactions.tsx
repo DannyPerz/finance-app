@@ -45,6 +45,24 @@ const formatDate = (iso: string) => {
   return `${d}/${m}/${y}`;
 };
 
+const dateLabel = (iso: string) => {
+  const todayStr = new Date().toLocaleDateString("en-CA");
+  const yesterdayStr = new Date(Date.now() - 86400000).toLocaleDateString("en-CA");
+  if (iso === todayStr) return "Hoy";
+  if (iso === yesterdayStr) return "Ayer";
+  return formatDate(iso);
+};
+
+const groupByDate = (txs: Transaction[]) => {
+  const map = new Map<string, Transaction[]>();
+  for (const tx of txs) {
+    const group = map.get(tx.date) ?? [];
+    group.push(tx);
+    map.set(tx.date, group);
+  }
+  return map;
+};
+
 const formatWithDots = (val: string) => {
   const digits = val.replace(/\D/g, "");
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -229,7 +247,7 @@ function TransactionRow({
             {tx.description || "Sin descripción"}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            {tx.categoryName || "Sin categoría"} • {formatDate(tx.date)}
+            {tx.categoryName || "Sin categoría"}
             {tx.isRecurring && (
               <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
                 <Repeat size={10} />
@@ -433,16 +451,25 @@ function TransactionsPage() {
           )}
         </div>
       ) : (
-        <div className="glass rounded-xl p-4 sm:p-6 shadow-sm">
-          <div className="space-y-0">
-            {paginated.map((tx) => (
-              <TransactionRow
-                key={tx.id}
-                tx={tx as Transaction}
-                categories={categories as Category[]}
-              />
-            ))}
-          </div>
+        <div className="space-y-4">
+          {Array.from(groupByDate(paginated as Transaction[])).map(([date, txs]) => (
+            <div key={date} className="glass rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 sm:px-6 py-2.5 border-b border-border/50 bg-muted/30">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  {dateLabel(date)}
+                </span>
+              </div>
+              <div className="px-4 sm:px-6">
+                {txs.map((tx) => (
+                  <TransactionRow
+                    key={tx.id}
+                    tx={tx}
+                    categories={categories as Category[]}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
