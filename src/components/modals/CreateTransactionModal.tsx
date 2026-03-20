@@ -84,67 +84,93 @@ export function CreateTransactionModal({ categories }: Props) {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo</FormLabel>
-                  <Select
-                    onValueChange={(v) => {
-                      field.onChange(v);
-                      form.setValue("categoryId", undefined);
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="expense">
-                        <span className="flex items-center gap-2">
-                          <Icon name="ArrowUpRight" size={14} />
-                          Gasto
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="income">
-                        <span className="flex items-center gap-2">
-                          <Icon name="ArrowDownLeft" size={14} />
-                          Ingreso
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
+            {/* Type + Category */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo</FormLabel>
+                    <Select
+                      onValueChange={(v) => {
+                        field.onChange(v);
+                        form.setValue("categoryId", undefined);
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="expense">
+                          <span className="flex items-center gap-2">
+                            <Icon name="ArrowUpRight" size={14} />
+                            Gasto
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="income">
+                          <span className="flex items-center gap-2">
+                            <Icon name="ArrowDownLeft" size={14} />
+                            Ingreso
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoría</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            <span className="flex items-center gap-2">
+                              <Icon name={cat.icon} size={14} />
+                              {cat.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Amount + Date */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="amount"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Monto (COP)</FormLabel>
-                      <FormControl>
-                        <Input
-                          inputMode="numeric"
-                          placeholder="Ej. 1.500.000"
-                          value={formatWithDots(field.value || "")}
-                          onChange={(e) => {
-                            const raw = e.target.value.replace(/\D/g, "");
-                            field.onChange(raw);
-                          }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  );
-                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Monto (COP)</FormLabel>
+                    <FormControl>
+                      <Input
+                        inputMode="numeric"
+                        placeholder="Ej. 1.500.000"
+                        value={formatWithDots(field.value || "")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          field.onChange(raw);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
               <FormField
                 control={form.control}
@@ -170,34 +196,6 @@ export function CreateTransactionModal({ categories }: Props) {
                   <FormControl>
                     <Input placeholder="Ej. Supermercado Éxito" {...field} />
                   </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {/* Category */}
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoría</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {filteredCategories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          <span className="flex items-center gap-2">
-                            <Icon name={cat.icon} size={14} />
-                            {cat.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </FormItem>
               )}
             />
@@ -237,7 +235,7 @@ export function CreateTransactionModal({ categories }: Props) {
                     <FormLabel>Frecuencia</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Selecciona frecuencia" />
                         </SelectTrigger>
                       </FormControl>
