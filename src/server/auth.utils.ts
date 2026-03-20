@@ -7,9 +7,15 @@ import { getRequest } from "@tanstack/react-start/server";
  */
 export async function getAuthSession() {
   const request = getRequest();
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  let session;
+  try {
+    session = await auth.api.getSession({
+      headers: request.headers,
+    });
+  } catch {
+    // DB unreachable or auth error — treat as unauthenticated
+    throw new Error("Not authenticated");
+  }
   if (!session) {
     throw new Error("Not authenticated");
   }

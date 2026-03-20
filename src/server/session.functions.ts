@@ -9,8 +9,13 @@ import { getRequest } from "@tanstack/react-start/server";
  */
 export const getServerSession = createServerFn().handler(async () => {
   const request = getRequest();
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-  return session;
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+    return session;
+  } catch {
+    // DB unreachable or auth error — treat as unauthenticated
+    return null;
+  }
 });
