@@ -419,9 +419,9 @@ function TransactionsPage() {
       />
 
       {/* Filters row */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         {/* Type tabs + Category on same row */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="flex gap-1 rounded-lg bg-muted p-1 shrink-0">
             {(
               [
@@ -453,8 +453,8 @@ function TransactionsPage() {
           />
         </div>
 
-        {/* Search full width */}
-        <div className="relative">
+        {/* Search */}
+        <div className="relative flex-1 min-w-0">
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
