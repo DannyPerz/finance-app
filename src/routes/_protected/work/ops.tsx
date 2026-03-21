@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { getOpsExpenses } from "@/server/work.ops.functions";
 import { Server, Grid, Activity } from "lucide-react";
-import { formatWithDots } from "@/lib/utils";
 import { CreateOpsExpenseModal } from "@/components/modals/CreateOpsExpenseModal";
 
 export const Route = createFileRoute("/_protected/work/ops")({
@@ -17,10 +16,12 @@ const formatCOP = (n: number | string) =>
     maximumFractionDigits: 0,
   }).format(Number(n));
 
+type LoadedExpense = ReturnType<typeof Route.useLoaderData>[number];
+
 function OpsDashboard() {
   const expenses = Route.useLoaderData();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expenseToEdit, setExpenseToEdit] = useState<any>(null);
+  const [expenseToEdit, setExpenseToEdit] = useState<LoadedExpense | null>(null);
 
   // Calculate Monthly Run Rate
   const monthlyRunRate = expenses.reduce((acc, expense) => {

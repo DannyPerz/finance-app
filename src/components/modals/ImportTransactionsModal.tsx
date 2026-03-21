@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { useRouter } from "@tanstack/react-router";
 import {
-  Upload,
   FileText,
   CheckCircle2,
   XCircle,

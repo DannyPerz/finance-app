@@ -7,13 +7,12 @@ import {
   updateOpsExpense,
   deleteOpsExpense,
 } from "@/server/work.ops.functions";
-import { createOpsExpenseSchema } from "@/server/schemas";
+import { createOpsExpenseSchema, type CreateOpsExpenseInput } from "@/server/schemas";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +73,7 @@ export function CreateOpsExpenseModal({ open, onOpenChange, expense }: Props) {
   const watchAmount = form.watch("amount");
   const watchCycle = form.watch("billingCycle");
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: CreateOpsExpenseInput) {
     try {
       setIsSubmitting(true);
       if (isEditing && expense) {
@@ -124,7 +123,7 @@ export function CreateOpsExpenseModal({ open, onOpenChange, expense }: Props) {
       );
       onOpenChange(false);
       router.invalidate();
-    } catch (e) {
+    } catch {
       toast.error("Error cambiando el estado.");
     } finally {
       setIsSubmitting(false);
@@ -139,7 +138,7 @@ export function CreateOpsExpenseModal({ open, onOpenChange, expense }: Props) {
       toast.success("Suscripción eliminada permanentemente.");
       onOpenChange(false);
       router.invalidate();
-    } catch (e) {
+    } catch {
       toast.error("No se pudo eliminar la suscripción.");
     } finally {
       setIsDeleting(false);

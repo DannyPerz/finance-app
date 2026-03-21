@@ -3,7 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { workMembers, workPayrolls, workPayrollParameters } from "../db/schema";
-import { calculatePayrollCosts } from "../lib/payroll.utils";
+import { calculatePayrollCosts, type ArlLevel, type PayrollParameters } from "../lib/payroll.utils";
 import { getPayrollParameters } from "./work.settings.functions";
 
 import { getAuthUserId } from "./auth.utils";
@@ -86,8 +86,8 @@ export const generateMonthlyPayroll = createServerFn({ method: "POST" })
       const costs = calculatePayrollCosts(
         Number(m.baseSalary),
         m.contractType,
-        (m.arlLevel || "I") as any,
-        params as any,
+        ((m.arlLevel || "I") as ArlLevel),
+        params as PayrollParameters,
       );
 
       return {

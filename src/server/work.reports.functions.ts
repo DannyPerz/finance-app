@@ -7,7 +7,7 @@ import {
   workOpsExpenses,
   workPayrollParameters,
 } from "../db/schema";
-import { calculatePayrollCosts } from "../lib/payroll.utils";
+import { calculatePayrollCosts, type ArlLevel, type PayrollParameters } from "../lib/payroll.utils";
 
 import { getAuthUserId } from "./auth.utils";
 
@@ -50,8 +50,8 @@ export const getOpexExecutiveReport = createServerFn({ method: "GET" }).handler(
         const costs = calculatePayrollCosts(
           Number(m.baseSalary),
           m.contractType,
-          (m.arlLevel || "I") as any,
-          params as any,
+          ((m.arlLevel || "I") as ArlLevel),
+          params as PayrollParameters,
         );
         return acc + costs.totalEmployerCost;
       }, 0);

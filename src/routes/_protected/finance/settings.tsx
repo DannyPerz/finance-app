@@ -53,7 +53,7 @@ function SettingsPage() {
             </div>
             <select
               value={theme}
-              onChange={(e) => setTheme(e.target.value as any)}
+              onChange={(e) => setTheme(e.target.value as "dark" | "light" | "auto")}
               className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="light">Claro</option>

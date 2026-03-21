@@ -24,7 +24,6 @@ import {
   BriefcaseBusiness,
   Activity,
 } from "lucide-react";
-import { formatWithDots } from "@/lib/utils";
 
 export const Route = createFileRoute("/_protected/work/reports")({
   loader: async () => getOpexExecutiveReport(),

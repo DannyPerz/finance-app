@@ -45,8 +45,10 @@ function PayrollsDashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Group payrolls by period for display
+  type PayrollItem = ReturnType<typeof Route.useLoaderData>[number];
+
   const groupedPayrolls = useMemo(() => {
-    const groups: Record<string, any[]> = {};
+    const groups: Record<string, PayrollItem[]> = {};
     for (const item of payrolls) {
       if (!groups[item.payroll.period]) {
         groups[item.payroll.period] = [];
@@ -69,8 +71,8 @@ function PayrollsDashboard() {
       );
       setIsGenerateModalOpen(false);
       router.invalidate();
-    } catch (err: any) {
-      toast.error(err.message || "No se pudo generar la nómina.");
+    } catch (err: unknown) {
+      toast.error((err as { message?: string }).message || "No se pudo generar la nómina.");
     } finally {
       setIsGenerating(false);
     }
@@ -194,7 +196,16 @@ function PayrollsDashboard() {
   );
 }
 
-function PeriodCard({ period, items, totalGross, totalNet }: any) {
+type PayrollItem = ReturnType<typeof Route.useLoaderData>[number];
+
+interface PeriodCardProps {
+  period: string;
+  items: PayrollItem[];
+  totalGross: number;
+  totalNet: number;
+}
+
+function PeriodCard({ period, items, totalGross, totalNet }: PeriodCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   // Parse YYYY-MM
@@ -277,7 +288,7 @@ function PeriodCard({ period, items, totalGross, totalNet }: any) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/20">
-                {items.map((item: any) => (
+                {items.map((item) => (
                   <tr key={item.payroll.id} className="hover:bg-muted/20">
                     <td className="px-4 py-3">
                       <div className="font-medium">{item.member.name}</div>

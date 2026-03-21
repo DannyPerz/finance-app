@@ -6,7 +6,7 @@ import {
 } from "@/server/work.settings.functions";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updatePayrollParametersSchema } from "@/server/schemas";
+import { updatePayrollParametersSchema, type UpdatePayrollParametersInput } from "@/server/schemas";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,7 @@ function SettingsDashboard() {
     },
   });
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: UpdatePayrollParametersInput) {
     try {
       setIsSubmitting(true);
       await updatePayrollParameters({ data });

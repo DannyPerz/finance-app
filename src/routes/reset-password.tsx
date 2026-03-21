@@ -30,7 +30,7 @@ function ResetPasswordPage() {
     defaultValues: { password: "", confirm: "" },
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: { password: string; confirm: string }) => {
     setError(null);
     setLoading(true);
 

@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 import { createWorkMember, updateWorkMember } from "@/server/work.functions";
-import { createWorkMemberSchema } from "@/server/schemas";
+import { createWorkMemberSchema, type CreateWorkMemberInput } from "@/server/schemas";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import {
 import { Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { formatWithDots } from "@/lib/utils";
-import { calculatePayrollCosts } from "@/lib/payroll.utils";
+import { calculatePayrollCosts, type PayrollParameters } from "@/lib/payroll.utils";
 
 interface Member {
   id: string;
@@ -41,7 +41,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member?: Member | null;
-  params?: any;
+  params?: PayrollParameters;
 }
 
 export function CreateWorkMemberModal({
@@ -82,9 +82,9 @@ export function CreateWorkMemberModal({
       (watchArlLevel || "I") as "I" | "II" | "III" | "IV" | "V",
       params,
     );
-  }, [watchBaseSalary, watchContractType, watchArlLevel]);
+  }, [watchBaseSalary, watchContractType, watchArlLevel, params]);
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: CreateWorkMemberInput) {
     try {
       setIsSubmitting(true);
       if (isEditing && member) {

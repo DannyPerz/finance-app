@@ -6,7 +6,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { formatWithDots } from "@/lib/utils";
-import { calculatePayrollCosts } from "@/lib/payroll.utils";
+import { calculatePayrollCosts, type PayrollParameters } from "@/lib/payroll.utils";
 
 interface Member {
   id: string;
@@ -23,7 +23,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member: Member;
-  params?: any;
+  params?: PayrollParameters;
 }
 
 export function WorkMemberInvoiceSheet({

@@ -23,7 +23,10 @@
       "Bash(find /c/GitHub/finance-app/node_modules/.pnpm/ -path */nitro*/dist/presets/cloudflare*)",
       "Bash(xargs grep:*)",
       "Bash(head -50 /c/GitHub/finance-app/src/routes/api/auth/[...auth].ts)",
-      "Bash(pnpm drizzle-kit:*)"
+      "Bash(pnpm drizzle-kit:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(ls C:/GitHub/finance-app/eslint*)"
     ]
   }
 }

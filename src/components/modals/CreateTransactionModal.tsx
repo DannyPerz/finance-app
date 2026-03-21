@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 import {
@@ -51,7 +51,7 @@ export function CreateTransactionModal({ categories, splitLeft }: Props) {
   const router = useRouter();
 
   const form = useForm<CreateTransactionInput>({
-    resolver: zodResolver(createTransactionSchema) as any,
+    resolver: zodResolver(createTransactionSchema) as Resolver<CreateTransactionInput>,
     defaultValues: {
       type: "expense",
       amount: "",
@@ -60,6 +60,7 @@ export function CreateTransactionModal({ categories, splitLeft }: Props) {
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedType = form.watch("type");
   const filteredCategories = categories.filter((c) => c.type === selectedType);
 

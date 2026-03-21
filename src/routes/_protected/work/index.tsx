@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { calculatePayrollCosts } from "@/lib/payroll.utils";
+import { calculatePayrollCosts, type ArlLevel } from "@/lib/payroll.utils";
 import { WorkMemberInvoiceSheet } from "@/components/WorkMemberInvoiceSheet";
 import { getPayrollParameters } from "@/server/work.settings.functions";
 
@@ -32,25 +32,27 @@ const formatCOP = (n: number | string) =>
     maximumFractionDigits: 0,
   }).format(Number(n));
 
+type LoadedMember = ReturnType<typeof Route.useLoaderData>["members"][number];
+
 function TeamDashboard() {
   const { members: allMembers, params } = Route.useLoaderData();
   const members = allMembers.filter((m) => m.isActive === "true");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [memberToEdit, setMemberToEdit] = useState<any>(null);
+  const [memberToEdit, setMemberToEdit] = useState<LoadedMember | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<any>(null);
+  const [memberToDelete, setMemberToDelete] = useState<LoadedMember | null>(null);
 
-  const [memberToShowDetails, setMemberToShowDetails] = useState<any>(null);
+  const [memberToShowDetails, setMemberToShowDetails] = useState<LoadedMember | null>(null);
 
   // Calculate actual costs using the mathematical model with DB parameters
   const enrichedMembers = members.map((m) => {
     const costs = calculatePayrollCosts(
       parseFloat(m.baseSalary),
       m.contractType,
-      (m.arlLevel as any) || "I",
-      params as any,
+      ((m.arlLevel || "I") as ArlLevel),
+      params ?? undefined,
     );
     return { ...m, ...costs };
   });

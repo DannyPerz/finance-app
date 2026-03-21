@@ -58,7 +58,7 @@ interface Goal {
   targetAmount: string;
   savedAmount: string;
   deadline: string | null;
-  createdAt: string;
+  createdAt: Date | string;
 }
 
 // ─── Goal Form Modal ──────────────────────────────────────
@@ -85,6 +85,7 @@ function GoalFormModal({
       setTarget(initial?.targetAmount?.split(".")[0] ?? "");
       setDeadline(initial?.deadline ?? "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
   const [saving, setSaving] = useState(false);
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 import {
@@ -38,7 +38,7 @@ export function CreateCategoryModal() {
   const router = useRouter();
 
   const form = useForm<CreateCategoryInput>({
-    resolver: zodResolver(createCategorySchema) as any,
+    resolver: zodResolver(createCategorySchema) as Resolver<CreateCategoryInput>,
     defaultValues: {
       name: "",
       icon: "Package",
