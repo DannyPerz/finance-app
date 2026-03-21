@@ -76,6 +76,38 @@ export const deleteCategorySchema = z.object({
   id: z.string().uuid(),
 });
 
+// ─── Savings Goals Schemas ───────────────────────────────
+
+export const createGoalSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  icon: z.string().default("PiggyBank"),
+  targetAmount: z.string().min(1, "El monto objetivo es requerido"),
+  deadline: z.string().optional(),
+});
+
+export type CreateGoalInput = z.infer<typeof createGoalSchema>;
+
+export const updateGoalSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "El nombre es requerido"),
+  icon: z.string(),
+  targetAmount: z.string().min(1, "El monto objetivo es requerido"),
+  deadline: z.string().optional(),
+});
+
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
+
+export const contributeGoalSchema = z.object({
+  id: z.string().uuid(),
+  amount: z.string().min(1, "El monto es requerido"),
+});
+
+export type ContributeGoalInput = z.infer<typeof contributeGoalSchema>;
+
+export const deleteGoalSchema = z.object({
+  id: z.string().uuid(),
+});
+
 // ─── Work Suite Schemas ──────────────────────────────────
 
 export const createWorkMemberSchema = z.object({

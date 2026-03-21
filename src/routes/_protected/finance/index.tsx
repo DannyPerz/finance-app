@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
 import { getTransactions } from "@/server/transactions.functions";
 import { getCategories } from "@/server/categories.functions";
+import { getGoals } from "@/server/goals.functions";
 import { ExpensesPieChart } from "@/components/charts/ExpensesPieChart";
 import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
 import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
@@ -10,11 +11,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/")({
   loader: async () => {
-    const [transactions, categories] = await Promise.all([
+    const [transactions, categories, goals] = await Promise.all([
       getTransactions(),
       getCategories(),
+      getGoals(),
     ]);
-    return { transactions, categories };
+    return { transactions, categories, goals };
   },
   component: Dashboard,
 });
@@ -56,7 +58,7 @@ const MONTH_SHORT = [
 ];
 
 function Dashboard() {
-  const { transactions, categories } = Route.useLoaderData();
+  const { transactions, categories, goals } = Route.useLoaderData();
   const now = new Date();
 
   // ─── Filter State ──────────────────────────────────────
@@ -398,6 +400,53 @@ function Dashboard() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Savings Goals Widget */}
+      {goals.length > 0 && (
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Metas de ahorro</h2>
+            <Link
+              to="/finance/goals"
+              className="text-xs text-primary hover:underline"
+            >
+              Ver todas →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {goals
+              .filter((g) => parseFloat(g.savedAmount ?? "0") < parseFloat(g.targetAmount))
+              .slice(0, 3)
+              .map((g) => {
+                const saved = parseFloat(g.savedAmount ?? "0");
+                const target = parseFloat(g.targetAmount);
+                const pct = target > 0 ? Math.min(100, Math.round((saved / target) * 100)) : 0;
+                return (
+                  <div key={g.id} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Icon name={g.icon} size={14} className="text-muted-foreground shrink-0" />
+                      <span className="font-medium text-sm truncate">{g.name}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${pct >= 75 ? "bg-primary" : pct >= 40 ? "bg-amber-500" : "bg-muted-foreground/50"}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{pct}%</span>
+                      <span>
+                        {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(saved)}
+                        {" / "}
+                        {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(target)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}

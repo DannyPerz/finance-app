@@ -77,6 +77,25 @@ export const transactions = pgTable("transactions", {
     .defaultNow(),
 });
 
+// ─── Savings Goals ───────────────────────────────────────
+
+export const savingsGoals = pgTable("savings_goals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  icon: text("icon").notNull().default("PiggyBank"),
+  targetAmount: numeric("target_amount", { precision: 18, scale: 2 }).notNull(),
+  savedAmount: numeric("saved_amount", { precision: 18, scale: 2 })
+    .notNull()
+    .default("0"),
+  deadline: date("deadline"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // ─── Exports from Other Suites ───────────────────────────
 export * from "./schema.work";
 export * from "./auth-schema";

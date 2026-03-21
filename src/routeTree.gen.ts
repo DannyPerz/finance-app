@@ -27,6 +27,7 @@ import { Route as ProtectedWorkPayrollsRouteImport } from './routes/_protected/w
 import { Route as ProtectedWorkOpsRouteImport } from './routes/_protected/work/ops'
 import { Route as ProtectedFinanceTransactionsRouteImport } from './routes/_protected/finance/transactions'
 import { Route as ProtectedFinanceSettingsRouteImport } from './routes/_protected/finance/settings'
+import { Route as ProtectedFinanceGoalsRouteImport } from './routes/_protected/finance/goals'
 import { Route as ProtectedFinanceCategoriesRouteImport } from './routes/_protected/finance/categories'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -120,6 +121,11 @@ const ProtectedFinanceSettingsRoute =
     path: '/settings',
     getParentRoute: () => ProtectedFinanceRoute,
   } as any)
+const ProtectedFinanceGoalsRoute = ProtectedFinanceGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
+  getParentRoute: () => ProtectedFinanceRoute,
+} as any)
 const ProtectedFinanceCategoriesRoute =
   ProtectedFinanceCategoriesRouteImport.update({
     id: '/categories',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
   '/work/ops': typeof ProtectedWorkOpsRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/api/export-csv': typeof ApiExportCsvRoute
   '/': typeof ProtectedIndexRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
   '/work/ops': typeof ProtectedWorkOpsRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/api/export-csv': typeof ApiExportCsvRoute
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/finance/categories': typeof ProtectedFinanceCategoriesRoute
+  '/_protected/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/_protected/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/_protected/finance/transactions': typeof ProtectedFinanceTransactionsRoute
   '/_protected/work/ops': typeof ProtectedWorkOpsRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/api/export-csv'
     | '/finance/categories'
+    | '/finance/goals'
     | '/finance/settings'
     | '/finance/transactions'
     | '/work/ops'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/api/export-csv'
     | '/'
     | '/finance/categories'
+    | '/finance/goals'
     | '/finance/settings'
     | '/finance/transactions'
     | '/work/ops'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/export-csv'
     | '/_protected/'
     | '/_protected/finance/categories'
+    | '/_protected/finance/goals'
     | '/_protected/finance/settings'
     | '/_protected/finance/transactions'
     | '/_protected/work/ops'
@@ -387,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedFinanceSettingsRouteImport
       parentRoute: typeof ProtectedFinanceRoute
     }
+    '/_protected/finance/goals': {
+      id: '/_protected/finance/goals'
+      path: '/goals'
+      fullPath: '/finance/goals'
+      preLoaderRoute: typeof ProtectedFinanceGoalsRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
     '/_protected/finance/categories': {
       id: '/_protected/finance/categories'
       path: '/categories'
@@ -399,6 +418,7 @@ declare module '@tanstack/react-router' {
 
 interface ProtectedFinanceRouteChildren {
   ProtectedFinanceCategoriesRoute: typeof ProtectedFinanceCategoriesRoute
+  ProtectedFinanceGoalsRoute: typeof ProtectedFinanceGoalsRoute
   ProtectedFinanceSettingsRoute: typeof ProtectedFinanceSettingsRoute
   ProtectedFinanceTransactionsRoute: typeof ProtectedFinanceTransactionsRoute
   ProtectedFinanceIndexRoute: typeof ProtectedFinanceIndexRoute
@@ -406,6 +426,7 @@ interface ProtectedFinanceRouteChildren {
 
 const ProtectedFinanceRouteChildren: ProtectedFinanceRouteChildren = {
   ProtectedFinanceCategoriesRoute: ProtectedFinanceCategoriesRoute,
+  ProtectedFinanceGoalsRoute: ProtectedFinanceGoalsRoute,
   ProtectedFinanceSettingsRoute: ProtectedFinanceSettingsRoute,
   ProtectedFinanceTransactionsRoute: ProtectedFinanceTransactionsRoute,
   ProtectedFinanceIndexRoute: ProtectedFinanceIndexRoute,

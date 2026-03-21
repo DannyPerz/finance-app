@@ -170,8 +170,8 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Importar movimientos</DialogTitle>
           <DialogDescription>
             {step === "upload"
@@ -181,7 +181,7 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
         </DialogHeader>
 
         {step === "upload" ? (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto">
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -190,7 +190,7 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileRef.current?.click()}
-              className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 sm:p-10 cursor-pointer transition-colors ${
                 dragging
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/50 hover:bg-accent/30"
@@ -234,8 +234,8 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="max-h-80 overflow-y-auto rounded-lg border border-border">
+          <div className="flex flex-col gap-4 flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-auto rounded-lg border border-border">
               <table className="w-full text-xs">
                 <thead className="sticky top-0 bg-muted/80 backdrop-blur">
                   <tr>
@@ -339,7 +339,7 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
               </p>
             )}
 
-            <div className="flex justify-between gap-2">
+            <div className="flex justify-between gap-2 shrink-0">
               <button
                 onClick={() => {
                   setStep("upload");
