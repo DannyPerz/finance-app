@@ -63,46 +63,37 @@ Un sistema personal para controlar **cómo entra y sale tu plata cada mes**. Sim
 - Filtros avanzados en Movimientos (tipo, categoría, búsqueda, paginación)
 - Split button acciones (Importar / Exportar CSV)
 - Tema Dark / Light / Auto persistido
-
----
-
-### Fase 3 — En desarrollo 🔨
-
-#### 1. Metas de ahorro *(en curso)*
-
-Crear objetivos de ahorro con nombre, ícono, monto objetivo y fecha límite opcional. El usuario registra abonos manuales hacia la meta. Widget en el dashboard con barra de progreso. Página dedicada `/finance/goals` con CRUD completo.
-
-**Cambios:** tabla `savingsGoals` + tabla `goalContributions`, server functions, página `/finance/goals`, widget en dashboard.
+- **Metas de ahorro** — tabla `savingsGoals` + `goalContributions`, página `/finance/goals`, widget en dashboard
 
 ---
 
 ### Fase 4 — Alta prioridad
 
-#### 2. Deudas y créditos
+#### 1. ✅ Tasa de ahorro mensual
+
+Widget en el dashboard: `(ingresos - gastos) / ingresos × 100` con histórico 6 meses en gráfico de línea. Verde ≥20%, amarillo 5-20%, rojo <5%.
+
+**Cambios:** cálculo puro, `SavingsRateChart.tsx`, widget en dashboard.
+
+#### 2. ✅ Proyección de cierre de mes
+
+Basada en el ritmo de gasto diario del mes en curso: proyecta gasto total al cierre, balance estimado, y alerta qué presupuestos serán superados. Solo visible en el mes actual.
+
+**Cambios:** cálculo puro sobre datos existentes, widget en dashboard.
+
+#### 3. Deudas y créditos
 
 Registrar que debes o te deben dinero. Soporte para cuotas (ej: crédito a 12 meses). Dashboard de deudas pendientes con monto restante y progreso de pago. Muy útil en contexto colombiano (créditos, cuotas, préstamos entre amigos).
 
 **Cambios:** tabla `debts` (acreedor, monto total, cuotas, tipo: debo/me deben), tabla `debtPayments`, widget en dashboard.
 
-#### 3. Tasa de ahorro mensual
-
-Widget que muestra `(ingresos - gastos) / ingresos × 100` con histórico de los últimos 6 meses en un mini gráfico de línea. Benchmark visual: verde si superas el 20%, amarillo entre 5-20%, rojo si es negativo.
-
-**Cambios:** cálculo puro sobre datos existentes, sin BD nueva.
-
-#### 4. Proyección de cierre de mes
-
-Si estás a mitad de mes con X gastos, proyectar cuánto gastarás al final basándose en el ritmo diario actual. Alerta si la proyección supera algún presupuesto.
-
-**Cambios:** cálculo puro sobre datos existentes + widget en dashboard.
-
 ---
 
 ### Fase 5 — Valor medio
 
-#### 5. Top gastos del mes
+#### 5. ✅ Top gastos del mes
 
-Lista de los 5 movimientos individuales más altos del mes en el dashboard. Útil para detectar gastos inesperados o salidas de lo normal.
+Los 5 movimientos de gasto más altos del mes, con barra de proporción relativa. Útil para detectar gastos inesperados.
 
 **Cambios:** cálculo puro sobre datos existentes, widget en dashboard.
 

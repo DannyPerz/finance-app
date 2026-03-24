@@ -6,6 +6,7 @@ import { getCategories } from "@/server/categories.functions";
 import { getGoals } from "@/server/goals.functions";
 import { ExpensesPieChart } from "@/components/charts/ExpensesPieChart";
 import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
+import { SavingsRateChart } from "@/components/charts/SavingsRateChart";
 import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -164,6 +165,74 @@ function Dashboard() {
       expense,
     }));
   }, [transactions, selectedMonth, selectedYear]);
+
+  // ─── Savings Rate ─────────────────────────────────────
+  const savingsRateHistory = useMemo(() => {
+    return monthlyTrend.map(({ month, income, expense }) => ({
+      month,
+      rate: income > 0 ? Math.round(((income - expense) / income) * 100) : 0,
+    }));
+  }, [monthlyTrend]);
+
+  const currentSavingsRate = savingsRateHistory[savingsRateHistory.length - 1]?.rate ?? 0;
+
+  // ─── Month-end Projection ─────────────────────────────
+  const projection = useMemo(() => {
+    const isCurrentMonth =
+      selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+    if (!isCurrentMonth) return null;
+
+    const today = now.getDate();
+    const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+    const daysLeft = totalDays - today;
+
+    if (today === 0) return null;
+
+    // Use last 7 days as the spending rate window — avoids over-projecting
+    // one-time payments (e.g. rent paid on day 1) across the whole month.
+    const windowDays = Math.min(today, 7);
+    const windowStart = new Date(selectedYear, selectedMonth, today - windowDays + 1);
+
+    const inWindow = (dateStr: string) =>
+      new Date(dateStr + "T00:00:00") >= windowStart;
+
+    const recentExpense = monthTransactions
+      .filter((tx) => tx.type === "expense" && inWindow(tx.date))
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const dailyRate = recentExpense / windowDays;
+    const projectedExpense = Math.round(expense + dailyRate * daysLeft);
+    const projectedBalance = income - projectedExpense;
+    const progressPct = Math.round((today / totalDays) * 100);
+
+    // Per-category projected spend using the same 7-day window
+    const budgetAlerts = categories
+      .filter((c) => c.type === "expense" && c.budget && parseFloat(c.budget) > 0)
+      .map((cat) => {
+        const catTxs = monthTransactions.filter(
+          (tx) => tx.type === "expense" && tx.categoryName === cat.name,
+        );
+        const spent = catTxs.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+        const recentCatExpense = catTxs
+          .filter((tx) => inWindow(tx.date))
+          .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+        const dailyCatRate = recentCatExpense / windowDays;
+        const projectedCatSpend = Math.round(spent + dailyCatRate * daysLeft);
+        const budget = parseFloat(cat.budget!);
+        return { name: cat.name, icon: cat.icon, budget, spent, projectedCatSpend };
+      })
+      .filter((b) => b.projectedCatSpend > b.budget);
+
+    return { today, totalDays, daysLeft, dailyRate, projectedExpense, projectedBalance, progressPct, budgetAlerts };
+  }, [selectedMonth, selectedYear, now, expense, income, categories, monthTransactions]);
+
+  // ─── Top Expenses ─────────────────────────────────────
+  const topExpenses = useMemo(() => {
+    return [...monthTransactions]
+      .filter((tx) => tx.type === "expense")
+      .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
+      .slice(0, 5);
+  }, [monthTransactions]);
 
   // ─── Budget Progress ──────────────────────────────────
   const budgetProgress = useMemo(() => {
@@ -356,6 +425,137 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Savings Rate */}
+      <div className="glass rounded-xl p-6 shadow-sm">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-lg sm:text-xl font-semibold">Tasa de ahorro</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Últimos 6 meses
+            </p>
+          </div>
+          <div className="text-right">
+            <span
+              className={`text-3xl font-bold ${
+                currentSavingsRate >= 20
+                  ? "text-primary"
+                  : currentSavingsRate >= 5
+                    ? "text-amber-500"
+                    : "text-destructive"
+              }`}
+            >
+              {currentSavingsRate}%
+            </span>
+            <p
+              className={`text-xs mt-0.5 font-medium ${
+                currentSavingsRate >= 20
+                  ? "text-primary"
+                  : currentSavingsRate >= 5
+                    ? "text-amber-500"
+                    : "text-destructive"
+              }`}
+            >
+              {currentSavingsRate >= 20
+                ? "¡Excelente!"
+                : currentSavingsRate >= 5
+                  ? "Puede mejorar"
+                  : currentSavingsRate >= 0
+                    ? "Muy bajo"
+                    : "Déficit"}
+            </p>
+          </div>
+        </div>
+        <SavingsRateChart data={savingsRateHistory} />
+        <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-primary inline-block" />
+            &gt;20% objetivo
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+            5–20% aceptable
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-destructive inline-block" />
+            &lt;5% crítico
+          </span>
+        </div>
+      </div>
+
+      {/* Month-end Projection */}
+      {projection && (
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-lg sm:text-xl font-semibold">Proyección de cierre</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Día {projection.today} de {projection.totalDays} — quedan {projection.daysLeft} días
+              </p>
+            </div>
+            <div className="text-right">
+              <span
+                className={`text-3xl font-bold ${projection.projectedBalance >= 0 ? "text-primary" : "text-destructive"}`}
+              >
+                {projection.projectedBalance >= 0 ? "+" : ""}
+                {formatCOP(projection.projectedBalance)}
+              </span>
+              <p className={`text-xs mt-0.5 font-medium ${projection.projectedBalance >= 0 ? "text-primary" : "text-destructive"}`}>
+                balance estimado
+              </p>
+            </div>
+          </div>
+
+          {/* Progress bar: days elapsed */}
+          <div className="mb-4">
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary/50 transition-all"
+                style={{ width: `${projection.progressPct}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{projection.progressPct}% del mes transcurrido</p>
+          </div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Ritmo diario (7d)</p>
+              <p className="font-semibold mt-0.5">{formatCOP(Math.round(projection.dailyRate))}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Gasto proyectado</p>
+              <p className={`font-semibold mt-0.5 ${projection.projectedExpense > income ? "text-destructive" : ""}`}>
+                {formatCOP(projection.projectedExpense)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Ingresos del mes</p>
+              <p className="font-semibold mt-0.5 text-primary">{formatCOP(income)}</p>
+            </div>
+          </div>
+
+          {/* Budget alerts */}
+          {projection.budgetAlerts.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs font-semibold text-destructive uppercase tracking-wide">
+                Presupuestos en riesgo
+              </p>
+              {projection.budgetAlerts.map((alert) => (
+                <div key={alert.name} className="flex items-center justify-between text-xs rounded-lg bg-destructive/10 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <Icon name={alert.icon} size={12} className="text-destructive shrink-0" />
+                    <span className="font-medium">{alert.name}</span>
+                  </div>
+                  <span className="text-destructive font-semibold">
+                    {formatCOP(alert.projectedCatSpend)} / {formatCOP(alert.budget)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Budget Progress */}
       {budgetProgress.length > 0 && (
         <div className="glass rounded-xl p-6 shadow-sm">
@@ -447,6 +647,48 @@ function Dashboard() {
                   </div>
                 );
               })}
+          </div>
+        </div>
+      )}
+
+      {/* Top Expenses */}
+      {topExpenses.length > 0 && (
+        <div className="glass rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">
+            Top gastos — {MONTH_NAMES[selectedMonth]}
+          </h2>
+          <div className="space-y-1">
+            {topExpenses.map((tx, i) => {
+              const amount = parseFloat(tx.amount);
+              const maxAmount = parseFloat(topExpenses[0].amount);
+              const barPct = maxAmount > 0 ? Math.round((amount / maxAmount) * 100) : 0;
+              return (
+                <div key={tx.id} className="flex items-center gap-3 py-2 group">
+                  <span className="text-xs font-bold text-muted-foreground w-4 shrink-0 text-center">
+                    {i + 1}
+                  </span>
+                  <div className="shrink-0 flex items-center justify-center w-7 h-7 rounded-lg bg-muted">
+                    <Icon name={tx.categoryIcon || "Circle"} size={14} className="text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-medium truncate">
+                        {tx.description || tx.categoryName || "Sin descripción"}
+                      </span>
+                      <span className="text-sm font-semibold shrink-0 text-destructive">
+                        -{formatCOP(amount)}
+                      </span>
+                    </div>
+                    <div className="h-1 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-destructive/60 transition-all"
+                        style={{ width: `${barPct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
