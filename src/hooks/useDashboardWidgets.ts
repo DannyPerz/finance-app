@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 
 export const WIDGET_KEYS = [
-  "metrics",
-  "charts",
+  "income",
+  "expenses",
+  "balance",
+  "trendChart",
+  "pieChart",
   "savingsRate",
   "projection",
   "budgets",
@@ -14,14 +17,32 @@ export const WIDGET_KEYS = [
 export type WidgetKey = (typeof WIDGET_KEYS)[number];
 
 export const WIDGET_LABELS: Record<WidgetKey, string> = {
-  metrics: "Métricas (Ingresos, Gastos, Balance)",
-  charts: "Gráficos de tendencia y categorías",
+  income: "Ingresos",
+  expenses: "Gastos",
+  balance: "Balance",
+  trendChart: "Gráfico Ingresos vs Gastos",
+  pieChart: "Gráfico Gastos por categoría",
   savingsRate: "Tasa de ahorro",
   projection: "Proyección de cierre de mes",
   budgets: "Presupuestos",
   goals: "Metas de ahorro",
   topExpenses: "Top gastos del mes",
   activity: "Actividad reciente",
+};
+
+/** Column span in a 3-column grid (desktop). Mobile is always full-width. */
+export const WIDGET_COLS: Record<WidgetKey, 1 | 2 | 3> = {
+  income: 1,
+  expenses: 1,
+  balance: 1,
+  trendChart: 2,
+  pieChart: 1,
+  savingsRate: 3,
+  projection: 3,
+  budgets: 3,
+  goals: 3,
+  topExpenses: 1,
+  activity: 2,
 };
 
 const STORAGE_KEY = "finova:dashboard:widgets";
@@ -42,12 +63,10 @@ function loadPrefs(): WidgetPrefs {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PREFS;
     const parsed = JSON.parse(raw) as Partial<WidgetPrefs>;
-    // Merge with defaults to handle newly added widgets
     const knownKeys = new Set(WIDGET_KEYS);
     const savedOrder = (parsed.order ?? []).filter((k) =>
       knownKeys.has(k as WidgetKey),
     ) as WidgetKey[];
-    // Append any new widgets not in saved order
     const newKeys = WIDGET_KEYS.filter((k) => !savedOrder.includes(k));
     return {
       order: [...savedOrder, ...newKeys],

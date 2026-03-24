@@ -9,7 +9,7 @@ import { MonthlyTrendChart } from "@/components/charts/MonthlyTrendChart";
 import { SavingsRateChart } from "@/components/charts/SavingsRateChart";
 import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
 import { DashboardCustomizer } from "@/components/DashboardCustomizer";
-import { useDashboardWidgets, type WidgetKey } from "@/hooks/useDashboardWidgets";
+import { useDashboardWidgets, type WidgetKey, WIDGET_COLS } from "@/hooks/useDashboardWidgets";
 import {
   DndContext,
   closestCenter,
@@ -21,13 +21,19 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
   useSortable,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
 
 // ─── SortableWidget ──────────────────────────────────────
+
+const COL_SPAN_CLASS: Record<1 | 2 | 3, string> = {
+  1: "col-span-1",
+  2: "col-span-1 sm:col-span-2",
+  3: "col-span-1 sm:col-span-3",
+};
 
 function SortableWidget({ id, children }: { id: WidgetKey; children: ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -43,8 +49,10 @@ function SortableWidget({ id, children }: { id: WidgetKey; children: ReactNode }
     zIndex: isDragging ? 10 : undefined,
   };
 
+  const cols = WIDGET_COLS[id];
+
   return (
-    <div ref={setNodeRef} style={style} className="relative group/widget">
+    <div ref={setNodeRef} style={style} className={`relative group/widget ${COL_SPAN_CLASS[cols]}`}>
       <button
         {...attributes}
         {...listeners}
@@ -439,7 +447,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Widgets — draggable, user-defined order */}
+      {/* Widgets — draggable grid, user-defined order */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -447,15 +455,17 @@ function Dashboard() {
       >
         <SortableContext
           items={widgets.order.filter((k) => widgets.isVisible(k))}
-          strategy={verticalListSortingStrategy}
+          strategy={rectSortingStrategy}
         >
-          {widgets.order
-            .filter((k) => widgets.isVisible(k))
-            .map((key) => (
-              <SortableWidget key={key} id={key}>
-                {renderWidget(key)}
-              </SortableWidget>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {widgets.order
+              .filter((k) => widgets.isVisible(k))
+              .map((key) => (
+                <SortableWidget key={key} id={key}>
+                  {renderWidget(key)}
+                </SortableWidget>
+              ))}
+          </div>
         </SortableContext>
       </DndContext>
     </div>
@@ -464,72 +474,56 @@ function Dashboard() {
   // ─── Widget render map ───────────────────────────────────
   function renderWidget(id: WidgetKey) {
     switch (id) {
-      case "metrics":
+      case "income":
         return (
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
-        <div className="glass rounded-xl p-5 sm:p-6 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Ingresos
-          </h3>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-primary">
-            {formatCOP(income)}
+          <div className="glass rounded-xl p-5 sm:p-6 shadow-sm h-full">
+            <h3 className="text-sm font-medium text-muted-foreground">Ingresos</h3>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold text-primary">
+              {formatCOP(income)}
+            </div>
+            {comparison.incDiff !== null && (
+              <p className={`text-xs mt-1 ${comparison.incDiff >= 0 ? "text-primary" : "text-destructive"}`}>
+                {comparison.incDiff >= 0 ? "↑" : "↓"} {Math.abs(comparison.incDiff)}% vs {MONTH_SHORT[comparison.prevMonth]}
+              </p>
+            )}
           </div>
-          {comparison.incDiff !== null && (
-            <p
-              className={`text-xs mt-1 ${comparison.incDiff >= 0 ? `text-primary` : `text-destructive`}`}
-            >
-              {comparison.incDiff >= 0 ? "↑" : "↓"}{" "}
-              {Math.abs(comparison.incDiff)}% vs{" "}
-              {MONTH_SHORT[comparison.prevMonth]}
-            </p>
-          )}
-        </div>
-        <div className="glass rounded-xl p-5 sm:p-6 shadow-sm">
-          <h3 className="text-sm font-medium text-muted-foreground">Gastos</h3>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold">
-            {formatCOP(expense)}
-          </div>
-          {comparison.expDiff !== null && (
-            <p
-              className={`text-xs mt-1 ${comparison.expDiff <= 0 ? `text-primary` : `text-destructive`}`}
-            >
-              {comparison.expDiff >= 0 ? "↑" : "↓"}{" "}
-              {Math.abs(comparison.expDiff)}% vs{" "}
-              {MONTH_SHORT[comparison.prevMonth]}
-            </p>
-          )}
-        </div>
-        <div
-          className={`glass rounded-xl p-5 sm:p-6 shadow-sm border ${balance >= 0 ? `border-primary/20 bg-linear-to-br from-background to-primary/5` : `border-destructive/20 bg-linear-to-br from-background to-destructive/5`}`}
-        >
-          <h3 className="text-sm font-medium text-muted-foreground">Balance</h3>
-          <div
-            className={`mt-2 text-2xl sm:text-3xl font-bold ${balance >= 0 ? `text-primary` : `text-destructive`}`}
-          >
-            {balance >= 0 ? "+" : ""}
-            {formatCOP(balance)}
-          </div>
-        </div>
-      </div>
-
         );
-      case "charts":
+      case "expenses":
         return (
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <div className="glass rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4">
-            Ingresos vs Gastos
-          </h2>
-          <MonthlyTrendChart data={monthlyTrend} />
-        </div>
-        <div className="glass rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4">
-            Gastos por Categoría
-          </h2>
-          <ExpensesPieChart data={expensesByCategory} />
-        </div>
-      </div>
-
+          <div className="glass rounded-xl p-5 sm:p-6 shadow-sm h-full">
+            <h3 className="text-sm font-medium text-muted-foreground">Gastos</h3>
+            <div className="mt-2 text-2xl sm:text-3xl font-bold">
+              {formatCOP(expense)}
+            </div>
+            {comparison.expDiff !== null && (
+              <p className={`text-xs mt-1 ${comparison.expDiff <= 0 ? "text-primary" : "text-destructive"}`}>
+                {comparison.expDiff >= 0 ? "↑" : "↓"} {Math.abs(comparison.expDiff)}% vs {MONTH_SHORT[comparison.prevMonth]}
+              </p>
+            )}
+          </div>
+        );
+      case "balance":
+        return (
+          <div className={`glass rounded-xl p-5 sm:p-6 shadow-sm h-full border ${balance >= 0 ? "border-primary/20 bg-linear-to-br from-background to-primary/5" : "border-destructive/20 bg-linear-to-br from-background to-destructive/5"}`}>
+            <h3 className="text-sm font-medium text-muted-foreground">Balance</h3>
+            <div className={`mt-2 text-2xl sm:text-3xl font-bold ${balance >= 0 ? "text-primary" : "text-destructive"}`}>
+              {balance >= 0 ? "+" : ""}{formatCOP(balance)}
+            </div>
+          </div>
+        );
+      case "trendChart":
+        return (
+          <div className="glass rounded-xl p-6 shadow-sm h-full">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Ingresos vs Gastos</h2>
+            <MonthlyTrendChart data={monthlyTrend} />
+          </div>
+        );
+      case "pieChart":
+        return (
+          <div className="glass rounded-xl p-6 shadow-sm h-full">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Gastos por Categoría</h2>
+            <ExpensesPieChart data={expensesByCategory} />
+          </div>
         );
       case "savingsRate":
         return (
