@@ -26,7 +26,9 @@
       "Bash(pnpm drizzle-kit:*)",
       "Bash(pnpm lint:*)",
       "Bash(grep -v \"^$\")",
-      "Bash(ls C:/GitHub/finance-app/eslint*)"
+      "Bash(ls C:/GitHub/finance-app/eslint*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm tsc:*)"
     ]
   }
 }

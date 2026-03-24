@@ -81,11 +81,6 @@ Basada en el ritmo de gasto diario del mes en curso: proyecta gasto total al cie
 
 **Cambios:** cálculo puro sobre datos existentes, widget en dashboard.
 
-#### 3. Deudas y créditos
-
-Registrar que debes o te deben dinero. Soporte para cuotas (ej: crédito a 12 meses). Dashboard de deudas pendientes con monto restante y progreso de pago. Muy útil en contexto colombiano (créditos, cuotas, préstamos entre amigos).
-
-**Cambios:** tabla `debts` (acreedor, monto total, cuotas, tipo: debo/me deben), tabla `debtPayments`, widget en dashboard.
 
 ---
 
