@@ -10,22 +10,7 @@ import { SavingsRateChart } from "@/components/charts/SavingsRateChart";
 import { CategoryFilterDropdown } from "@/components/CategoryFilterDropdown";
 import { DashboardCustomizer } from "@/components/DashboardCustomizer";
 import { useDashboardWidgets, type WidgetKey, WIDGET_COLS } from "@/hooks/useDashboardWidgets";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  rectSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // ─── SortableWidget ──────────────────────────────────────
 
@@ -35,33 +20,11 @@ const COL_SPAN_CLASS: Record<1 | 2 | 3, string> = {
   3: "col-span-1 sm:col-span-3",
 };
 
-function SortableWidget({ id, children }: { id: WidgetKey; children: ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
-
-  const style = {
-    // Only translate — avoid scale values that distort box-shadow / backdrop-filter
-    transform: transform
-      ? `translate3d(${Math.round(transform.x)}px, ${Math.round(transform.y)}px, 0)`
-      : undefined,
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 10 : undefined,
-  };
-
+function Widget({ id, children }: { id: WidgetKey; children: ReactNode }) {
   const cols = WIDGET_COLS[id];
 
   return (
-    <div ref={setNodeRef} style={style} className={`relative group/widget ${COL_SPAN_CLASS[cols]}`}>
-      <button
-        {...attributes}
-        {...listeners}
-        className="absolute top-3 right-3 z-10 p-1 rounded text-muted-foreground/30 opacity-0 group-hover/widget:opacity-100 hover:text-muted-foreground hover:bg-muted transition-opacity cursor-grab active:cursor-grabbing touch-none"
-        tabIndex={-1}
-        title="Arrastrar widget"
-      >
-        <GripVertical size={16} />
-      </button>
+    <div className={`relative group/widget ${COL_SPAN_CLASS[cols]}`}>
       {children}
     </div>
   );
@@ -119,24 +82,10 @@ const MONTH_SHORT = [
 
 function Dashboard() {
   const { transactions, categories, goals } = Route.useLoaderData();
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const widgets = useDashboardWidgets();
 
-  // ─── Drag & Drop ──────────────────────────────────────
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
-  );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const visibleOrder = widgets.order.filter((k) => widgets.isVisible(k));
-    const hiddenItems = widgets.order.filter((k) => !widgets.isVisible(k));
-    const oldIndex = visibleOrder.indexOf(active.id as WidgetKey);
-    const newIndex = visibleOrder.indexOf(over.id as WidgetKey);
-    widgets.reorder([...arrayMove(visibleOrder, oldIndex, newIndex), ...hiddenItems]);
-  };
 
   // ─── Filter State ──────────────────────────────────────
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
@@ -440,34 +389,22 @@ function Dashboard() {
           <DashboardCustomizer
             order={widgets.order}
             isVisible={widgets.isVisible}
-            reorder={widgets.reorder}
             toggleVisibility={widgets.toggleVisibility}
             reset={widgets.reset}
           />
         </div>
       </div>
 
-      {/* Widgets — draggable grid, user-defined order */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={widgets.order.filter((k) => widgets.isVisible(k))}
-          strategy={rectSortingStrategy}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {widgets.order
-              .filter((k) => widgets.isVisible(k))
-              .map((key) => (
-                <SortableWidget key={key} id={key}>
-                  {renderWidget(key)}
-                </SortableWidget>
-              ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      {/* Widgets — user-defined order */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {widgets.order
+          .filter((k) => widgets.isVisible(k))
+          .map((key) => (
+            <Widget key={key} id={key}>
+              {renderWidget(key)}
+            </Widget>
+          ))}
+      </div>
     </div>
   );
 

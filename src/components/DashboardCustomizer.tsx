@@ -1,20 +1,5 @@
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Eye, EyeOff, RotateCcw, Settings2 } from "lucide-react";
+
+import { Eye, EyeOff, RotateCcw, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -27,7 +12,7 @@ import { type WidgetKey, WIDGET_LABELS } from "@/hooks/useDashboardWidgets";
 
 // ─── Sortable row ─────────────────────────────────────────
 
-function SortableRow({
+function Row({
   id,
   visible,
   onToggle,
@@ -36,33 +21,10 @@ function SortableRow({
   visible: boolean;
   onToggle: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 bg-background transition-colors ${
-        isDragging ? "border-primary/50 shadow-lg" : "border-border/50"
-      } ${!visible ? "opacity-50" : ""}`}
+      className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 bg-background transition-colors border-border/50 ${!visible ? "opacity-50" : ""}`}
     >
-      {/* Drag handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
-        tabIndex={-1}
-      >
-        <GripVertical size={16} />
-      </button>
-
       <span className="flex-1 text-sm font-medium">{WIDGET_LABELS[id]}</span>
 
       {/* Visibility toggle */}
@@ -86,28 +48,13 @@ function SortableRow({
 interface Props {
   order: WidgetKey[];
   isVisible: (k: WidgetKey) => boolean;
-  reorder: (newOrder: WidgetKey[]) => void;
   toggleVisibility: (k: WidgetKey) => void;
   reset: () => void;
 }
 
-export function DashboardCustomizer({ order, isVisible, reorder, toggleVisibility, reset }: Props) {
+export function DashboardCustomizer({ order, isVisible, toggleVisibility, reset }: Props) {
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
-    }),
-  );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = order.indexOf(active.id as WidgetKey);
-      const newIndex = order.indexOf(over.id as WidgetKey);
-      reorder(arrayMove(order, oldIndex, newIndex));
-    }
-  };
 
   const hiddenCount = order.filter((k) => !isVisible(k)).length;
 
@@ -134,24 +81,16 @@ export function DashboardCustomizer({ order, isVisible, reorder, toggleVisibilit
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto py-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={order} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {order.map((key) => (
-                  <SortableRow
-                    key={key}
-                    id={key}
-                    visible={isVisible(key)}
-                    onToggle={() => toggleVisibility(key)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+          <div className="space-y-2">
+            {order.map((key) => (
+              <Row
+                key={key}
+                id={key}
+                visible={isVisible(key)}
+                onToggle={() => toggleVisibility(key)}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="border-t pt-4">
