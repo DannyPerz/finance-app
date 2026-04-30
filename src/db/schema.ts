@@ -72,6 +72,7 @@ export const transactions = pgTable("transactions", {
   date: date("date").notNull(),
   isRecurring: boolean("is_recurring").notNull().default(false),
   recurrence: recurrenceEnum("recurrence"),
+  isPaid: boolean("is_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

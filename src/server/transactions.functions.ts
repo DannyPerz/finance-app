@@ -7,6 +7,7 @@ import {
   updateTransactionSchema,
   deleteTransactionSchema,
   importTransactionsSchema,
+  toggleTransactionPaidSchema,
 } from "./schemas";
 
 import { getAuthUserId } from "./auth.utils";
@@ -25,6 +26,7 @@ export const getTransactions = createServerFn().handler(async () => {
       categoryId: transactions.categoryId,
       isRecurring: transactions.isRecurring,
       recurrence: transactions.recurrence,
+      isPaid: transactions.isPaid,
       createdAt: transactions.createdAt,
       categoryName: categories.name,
       categoryIcon: categories.icon,
@@ -121,4 +123,23 @@ export const deleteTransaction = createServerFn({ method: "POST" })
         ),
       );
     return { success: true };
+  });
+
+// ─── Toggle isPaid ───────────────────────────────────────
+
+export const toggleTransactionPaid = createServerFn({ method: "POST" })
+  .inputValidator(toggleTransactionPaidSchema)
+  .handler(async ({ data }) => {
+    const userId = await getAuthUserId();
+    const [updated] = await db
+      .update(transactions)
+      .set({ isPaid: data.isPaid })
+      .where(
+        and(
+          eq(transactions.id, data.id),
+          eq(transactions.userId, userId),
+        ),
+      )
+      .returning();
+    return updated;
   });

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Repeat, Trash2, AlertTriangle } from "lucide-react";
+import { Repeat, Trash2, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { formatWithDots } from "@/lib/utils";
 
 interface Transaction {
@@ -31,6 +31,7 @@ interface Transaction {
   categoryIcon: string | null;
   isRecurring: boolean;
   recurrence: "weekly" | "biweekly" | "monthly" | null;
+  isPaid: boolean;
 }
 
 interface Category {
@@ -144,8 +145,20 @@ export function TransactionDetailModal({ tx, categories, open, onOpenChange }: P
               )}
             </p>
           </div>
-          <div className={`font-bold text-lg shrink-0 ${type === "income" ? "text-primary" : ""}`}>
-            {type === "income" ? "+" : "-"}{formatCOP(amount || "0")}
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <div className={`font-bold text-lg ${type === "income" ? "text-primary" : ""}`}>
+              {type === "income" ? "+" : "-"}{formatCOP(amount || "0")}
+            </div>
+            <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+              tx.isPaid
+                ? "bg-primary/10 text-primary"
+                : "bg-muted text-muted-foreground"
+            }`}>
+              {tx.isPaid
+                ? <><CheckCircle2 size={9} /> Confirmado</>
+                : <><Clock size={9} /> Pendiente</>
+              }
+            </span>
           </div>
         </div>
 

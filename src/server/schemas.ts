@@ -37,6 +37,11 @@ export const deleteTransactionSchema = z.object({
   id: z.string().uuid(),
 });
 
+export const toggleTransactionPaidSchema = z.object({
+  id: z.string().uuid(),
+  isPaid: z.boolean(),
+});
+
 export const importTransactionRowSchema = z.object({
   type: z.enum(transactionTypeValues),
   amount: z.string().min(1),

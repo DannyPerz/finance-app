@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Icon } from "@/components/Icon";
-import { getTransactions } from "@/server/transactions.functions";
+import { getTransactions, toggleTransactionPaid } from "@/server/transactions.functions";
 import { getCategories } from "@/server/categories.functions";
 import { CreateTransactionModal } from "@/components/modals/CreateTransactionModal";
 import { ImportTransactionsModal } from "@/components/modals/ImportTransactionsModal";
@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Check,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/finance/transactions")({
@@ -71,6 +72,7 @@ interface Transaction {
   categoryIcon: string | null;
   isRecurring: boolean;
   recurrence: "weekly" | "biweekly" | "monthly" | null;
+  isPaid: boolean;
 }
 
 interface Category {
@@ -83,52 +85,76 @@ interface Category {
 function TransactionRow({
   tx,
   categories,
+  onTogglePaid,
 }: {
   tx: Transaction;
   categories: Category[];
+  onTogglePaid: (id: string, isPaid: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="group w-full flex items-center justify-between py-2.5 px-4 sm:px-6 border-b border-border/50 last:border-0 hover:bg-accent/40 transition-colors text-left"
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-muted group-hover:bg-background transition-colors">
-            <Icon
-              name={tx.categoryIcon || "Circle"}
-              size={16}
-              className="text-muted-foreground"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="font-medium truncate">
-              {tx.description || "Sin descripción"}
-            </p>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              {tx.categoryName || "Sin categoría"}
-              {tx.isRecurring && (
-                <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
-                  <Repeat size={10} />
-                  {tx.recurrence === "weekly"
-                    ? "Semanal"
-                    : tx.recurrence === "biweekly"
-                      ? "Quincenal"
-                      : "Mensual"}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-        <div
-          className={`font-semibold shrink-0 ml-3 ${tx.type === "income" ? "text-primary" : ""}`}
+      <div className="group flex items-center border-b border-border/50 last:border-0 hover:bg-accent/40 transition-colors">
+        {/* Paid toggle — independent del click que abre el modal */}
+        <button
+          onClick={() => onTogglePaid(tx.id, !tx.isPaid)}
+          title={tx.isPaid ? "Confirmado — click para desmarcar" : "Marcar como pagado/recibido"}
+          className={`shrink-0 mx-3 sm:mx-4 flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
+            tx.isPaid
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border hover:border-primary/60"
+          }`}
         >
-          {tx.type === "income" ? "+" : "-"}
-          {formatCOP(tx.amount)}
-        </div>
-      </button>
+          {tx.isPaid && <Check size={10} strokeWidth={3} />}
+        </button>
+
+        {/* Row body — abre el modal */}
+        <button
+          onClick={() => setOpen(true)}
+          className="flex flex-1 items-center justify-between py-2.5 pr-4 sm:pr-6 text-left min-w-0"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${tx.isPaid ? "bg-primary/10" : "bg-muted group-hover:bg-background"}`}>
+              <Icon
+                name={tx.categoryIcon || "Circle"}
+                size={16}
+                className={tx.isPaid ? "text-primary" : "text-muted-foreground"}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className={`font-medium truncate ${!tx.isPaid ? "text-muted-foreground" : ""}`}>
+                {tx.description || "Sin descripción"}
+              </p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                {tx.categoryName || "Sin categoría"}
+                {tx.isRecurring && (
+                  <span className="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                    <Repeat size={10} />
+                    {tx.recurrence === "weekly"
+                      ? "Semanal"
+                      : tx.recurrence === "biweekly"
+                        ? "Quincenal"
+                        : "Mensual"}
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <div
+            className={`font-semibold shrink-0 ml-3 ${
+              !tx.isPaid
+                ? "text-muted-foreground"
+                : tx.type === "income"
+                  ? "text-primary"
+                  : ""
+            }`}
+          >
+            {tx.type === "income" ? "+" : "-"}
+            {formatCOP(tx.amount)}
+          </div>
+        </button>
+      </div>
 
       <TransactionDetailModal
         tx={tx}
@@ -162,6 +188,7 @@ function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
     "all",
   );
+  const [pendingOnly, setPendingOnly] = useState(false);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(
     new Set(),
   );
@@ -171,6 +198,27 @@ function TransactionsPage() {
   const [actionsOpen, setActionsOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+
+  // Optimistic paid overrides — evita reload completo al hacer toggle
+  const [paidOverrides, setPaidOverrides] = useState<Map<string, boolean>>(new Map());
+
+  const handleTogglePaid = async (id: string, isPaid: boolean) => {
+    setPaidOverrides((prev) => new Map(prev).set(id, isPaid));
+    try {
+      await toggleTransactionPaid({ data: { id, isPaid } });
+    } catch {
+      setPaidOverrides((prev) => {
+        const next = new Map(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const txWithOverrides = transactions.map((t) => ({
+    ...t,
+    isPaid: paidOverrides.has(t.id) ? (paidOverrides.get(t.id) as boolean) : t.isPaid,
+  }));
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -190,7 +238,7 @@ function TransactionsPage() {
   // Reset to page 1 on any filter change
   useEffect(() => {
     setPage(1);
-  }, [typeFilter, selectedCategoryIds, search]);
+  }, [typeFilter, pendingOnly, selectedCategoryIds, search]);
 
   // When type changes, reset category selection
   const handleTypeFilter = (v: "all" | "income" | "expense") => {
@@ -198,8 +246,9 @@ function TransactionsPage() {
     setSelectedCategoryIds(new Set());
   };
 
-  const filtered = transactions.filter((tx) => {
+  const filtered = txWithOverrides.filter((tx) => {
     if (typeFilter !== "all" && tx.type !== typeFilter) return false;
+    if (pendingOnly && tx.isPaid) return false;
     if (
       selectedCategoryIds.size > 0 &&
       !selectedCategoryIds.has(tx.categoryId ?? "")
@@ -218,12 +267,13 @@ function TransactionsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const hasActiveFilters =
-    typeFilter !== "all" || selectedCategoryIds.size > 0 || search !== "";
+    typeFilter !== "all" || pendingOnly || selectedCategoryIds.size > 0 || search !== "";
 
   const handleExportCSV = () => window.open("/api/export-csv", "_blank");
 
   const clearFilters = () => {
     setTypeFilter("all");
+    setPendingOnly(false);
     setSelectedCategoryIds(new Set());
     setSearchInput("");
   };
@@ -317,6 +367,21 @@ function TransactionsPage() {
             ))}
           </div>
 
+          {/* Pending filter */}
+          <button
+            onClick={() => setPendingOnly((v) => !v)}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+              pendingOnly
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
+            }`}
+          >
+            <span className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${pendingOnly ? "border-primary" : "border-current"}`}>
+              {pendingOnly && <Check size={8} strokeWidth={3} className="text-primary" />}
+            </span>
+            Sin confirmar
+          </button>
+
           {/* Category filter */}
           <CategoryFilterDropdown
             categories={categories}
@@ -385,6 +450,7 @@ function TransactionsPage() {
                       key={tx.id}
                       tx={tx}
                       categories={categories as Category[]}
+                      onTogglePaid={handleTogglePaid}
                     />
                   ))}
                 </div>
