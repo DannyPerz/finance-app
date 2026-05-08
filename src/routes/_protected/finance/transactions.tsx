@@ -342,9 +342,9 @@ function TransactionsPage() {
       />
 
       {/* Filters row */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        {/* Type tabs + Category on same row */}
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Type tabs */}
           <div className="flex gap-1 rounded-lg bg-muted p-1 shrink-0">
             {(
               [
@@ -370,7 +370,7 @@ function TransactionsPage() {
           {/* Pending filter */}
           <button
             onClick={() => setPendingOnly((v) => !v)}
-            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
               pendingOnly
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
@@ -392,7 +392,7 @@ function TransactionsPage() {
         </div>
 
         {/* Search */}
-        <div className="relative flex-1 min-w-0">
+        <div className="relative">
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"

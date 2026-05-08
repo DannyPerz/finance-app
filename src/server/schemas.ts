@@ -113,6 +113,29 @@ export const deleteGoalSchema = z.object({
   id: z.string().uuid(),
 });
 
+// ─── Savings Challenge Schemas ───────────────────────────
+
+export const createChallengeSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  startDate: z.string().min(1, "La fecha de inicio es requerida"),
+});
+
+export type CreateChallengeInput = z.infer<typeof createChallengeSchema>;
+
+export const toggleChallengeDaySchema = z.object({
+  id: z.string().uuid(),
+  day: z.number().int().min(1).max(100),
+  paid: z.boolean(),
+});
+
+export const deleteChallengeSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export const resetChallengeSchema = z.object({
+  id: z.string().uuid(),
+});
+
 // ─── Work Suite Schemas ──────────────────────────────────
 
 export const createWorkMemberSchema = z.object({

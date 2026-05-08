@@ -29,6 +29,7 @@ import { Route as ProtectedFinanceTransactionsRouteImport } from './routes/_prot
 import { Route as ProtectedFinanceSettingsRouteImport } from './routes/_protected/finance/settings'
 import { Route as ProtectedFinanceGoalsRouteImport } from './routes/_protected/finance/goals'
 import { Route as ProtectedFinanceCategoriesRouteImport } from './routes/_protected/finance/categories'
+import { Route as ProtectedFinance100DaysRouteImport } from './routes/_protected/finance/100-days'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -132,6 +133,11 @@ const ProtectedFinanceCategoriesRoute =
     path: '/categories',
     getParentRoute: () => ProtectedFinanceRoute,
   } as any)
+const ProtectedFinance100DaysRoute = ProtectedFinance100DaysRouteImport.update({
+  id: '/100-days',
+  path: '/100-days',
+  getParentRoute: () => ProtectedFinanceRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof ProtectedFinanceRouteWithChildren
   '/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
+  '/finance/100-days': typeof ProtectedFinance100DaysRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
   '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/api/export-csv': typeof ApiExportCsvRoute
   '/': typeof ProtectedIndexRoute
+  '/finance/100-days': typeof ProtectedFinance100DaysRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
   '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/_protected/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
   '/_protected/': typeof ProtectedIndexRoute
+  '/_protected/finance/100-days': typeof ProtectedFinance100DaysRoute
   '/_protected/finance/categories': typeof ProtectedFinanceCategoriesRoute
   '/_protected/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/_protected/finance/settings': typeof ProtectedFinanceSettingsRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/work'
     | '/api/export-csv'
+    | '/finance/100-days'
     | '/finance/categories'
     | '/finance/goals'
     | '/finance/settings'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/api/export-csv'
     | '/'
+    | '/finance/100-days'
     | '/finance/categories'
     | '/finance/goals'
     | '/finance/settings'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/_protected/work'
     | '/api/export-csv'
     | '/_protected/'
+    | '/_protected/finance/100-days'
     | '/_protected/finance/categories'
     | '/_protected/finance/goals'
     | '/_protected/finance/settings'
@@ -413,10 +425,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedFinanceCategoriesRouteImport
       parentRoute: typeof ProtectedFinanceRoute
     }
+    '/_protected/finance/100-days': {
+      id: '/_protected/finance/100-days'
+      path: '/100-days'
+      fullPath: '/finance/100-days'
+      preLoaderRoute: typeof ProtectedFinance100DaysRouteImport
+      parentRoute: typeof ProtectedFinanceRoute
+    }
   }
 }
 
 interface ProtectedFinanceRouteChildren {
+  ProtectedFinance100DaysRoute: typeof ProtectedFinance100DaysRoute
   ProtectedFinanceCategoriesRoute: typeof ProtectedFinanceCategoriesRoute
   ProtectedFinanceGoalsRoute: typeof ProtectedFinanceGoalsRoute
   ProtectedFinanceSettingsRoute: typeof ProtectedFinanceSettingsRoute
@@ -425,6 +445,7 @@ interface ProtectedFinanceRouteChildren {
 }
 
 const ProtectedFinanceRouteChildren: ProtectedFinanceRouteChildren = {
+  ProtectedFinance100DaysRoute: ProtectedFinance100DaysRoute,
   ProtectedFinanceCategoriesRoute: ProtectedFinanceCategoriesRoute,
   ProtectedFinanceGoalsRoute: ProtectedFinanceGoalsRoute,
   ProtectedFinanceSettingsRoute: ProtectedFinanceSettingsRoute,

@@ -72,7 +72,7 @@ export function CategoryFilterDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-border bg-background shadow-lg py-1 max-h-72 overflow-y-auto">
+        <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1 z-50 w-56 max-w-[calc(100vw-1rem)] rounded-lg border border-border bg-background shadow-lg py-1 max-h-72 overflow-y-auto">
           {selected.size > 0 && (
             <button
               onClick={() => onChange(new Set())}

@@ -7,6 +7,7 @@ import {
   pgEnum,
   uuid,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ───────────────────────────────────────────────
@@ -92,6 +93,21 @@ export const savingsGoals = pgTable("savings_goals", {
     .notNull()
     .default("0"),
   deadline: date("deadline"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ─── 100 Days Savings Challenge ──────────────────────────
+
+export const savingsChallenges = pgTable("savings_challenges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull().default("Reto 100 días"),
+  startDate: date("start_date").notNull(),
+  paidDays: integer("paid_days").array().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

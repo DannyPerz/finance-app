@@ -1,11 +1,12 @@
 import { Link, useMatches } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, Settings, PiggyBank } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, Settings, PiggyBank, Trophy } from "lucide-react";
 
 const navItems = [
   { to: "/finance", label: "Dashboard", icon: LayoutDashboard },
   { to: "/finance/transactions", label: "Movimientos", icon: ArrowLeftRight },
   { to: "/finance/categories", label: "Categorías", icon: Tags },
   { to: "/finance/goals", label: "Metas", icon: PiggyBank },
+  { to: "/finance/100-days", label: "100 Días", icon: Trophy },
 ] as const;
 
 export default function Sidebar() {
