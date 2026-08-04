@@ -15,7 +15,7 @@ Database migrations are managed via Drizzle Kit — run `pnpm drizzle-kit` comma
 
 ## Architecture
 
-This is a full-stack personal finance + work management app built with **TanStack Start** (React 19, TanStack Router, Nitro). Deployed to **Vercel**.
+This is a full-stack personal finance app built with **TanStack Start** (React 19, TanStack Router, Nitro). Deployed to **Vercel**.
 
 ### Stack
 - **Routing/SSR:** TanStack Router (file-based) + TanStack Start
@@ -26,10 +26,9 @@ This is a full-stack personal finance + work management app built with **TanStac
 - **Forms:** React Hook Form + Zod
 - **Build:** Vite 7 + Nitro (preset switches between `node-server` in dev and `vercel` in production)
 
-### Two App Modules
-The app has two distinct modules accessed from a hub at `/`:
-- **Finance** (`/finance/*`) — personal budget: transactions, categories, settings
-- **Work** (`/work/*`) — team management: payroll, ops expenses, reports
+### App Module
+A single module is reached from the hub at `/`:
+- **Finance** (`/finance/*`) — personal budget: transactions, categories, goals, the 100-day savings challenge, settings
 
 ### Routing Pattern
 File-based routing under `src/routes/`:
@@ -45,10 +44,9 @@ Route data is fetched via TanStack Router `loader` functions calling server func
 All business logic lives in `src/server/*.functions.ts` files. These are TanStack Start server functions (`createServerFn`). Auth is enforced inside each function via `getAuthUserId()` from `src/server/auth.utils.ts`.
 
 ### Database Schema
-Three schema files in `src/db/`:
-- `schema.ts` — Finance: `users`, `categories`, `transactions` (with recurrence support)
+Two schema files in `src/db/`:
+- `schema.ts` — Finance: `users`, `categories`, `transactions` (with recurrence support), `savingsGoals`, `savingsChallenges`
 - `auth-schema.ts` — Better Auth tables: `session`, `account`, `verification`
-- `schema.work.ts` — Work: `workMembers`, `workPayrolls`, `workOpsExpenses`
 
 Drizzle client initialized in `src/db/index.ts` using Neon's serverless HTTP adapter.
 

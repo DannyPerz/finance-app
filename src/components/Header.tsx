@@ -76,27 +76,6 @@ export default function Header() {
                   Finances
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/work"
-                  className="flex items-center cursor-pointer w-full"
-                >
-                  <Icon
-                    name="Briefcase"
-                    size={16}
-                    className="mr-2 text-blue-500"
-                  />
-                  Work
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="flex items-center">
-                <Icon
-                  name="CheckSquare"
-                  size={16}
-                  className="mr-2 text-orange-500"
-                />
-                Flime (Próximamente)
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
