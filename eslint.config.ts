@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi", "node_modules", ".content-collections", "src/components/ui/**"] },
+  { ignores: ["dist", ".output", ".vinxi", "node_modules", "src/components/ui/**"] },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
