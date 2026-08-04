@@ -1,0 +1,27 @@
+# Normalize every text file to LF, both in the repository and in the working
+# tree. This repo lives on /mnt/c and is edited from both WSL and Windows
+# tooling, which otherwise flips files to CRLF and turns two-line changes into
+# whole-file diffs.
+* text=auto eol=lf
+
+# Binary assets — never apply end-of-line conversion.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.avif   binary
+*.svgz   binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.eot    binary
+*.pdf    binary
+*.mp4    binary
+*.webm   binary
+
+# Lockfile is generated: collapse it in GitHub reviews. Local `git diff` still
+# works normally, which matters when a dependency bump needs inspecting.
+pnpm-lock.yaml linguist-generated

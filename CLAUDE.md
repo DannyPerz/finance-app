@@ -15,7 +15,7 @@ Database migrations are managed via Drizzle Kit — run `pnpm drizzle-kit` comma
 
 ## Architecture
 
-This is a full-stack personal finance + work management app built with **TanStack Start** (React 19, TanStack Router, Nitro). Deployed to **Cloudflare Pages**.
+This is a full-stack personal finance + work management app built with **TanStack Start** (React 19, TanStack Router, Nitro). Deployed to **Vercel**.
 
 ### Stack
 - **Routing/SSR:** TanStack Router (file-based) + TanStack Start
@@ -24,7 +24,7 @@ This is a full-stack personal finance + work management app built with **TanStac
 - **UI:** Shadcn components, Tailwind CSS 4, Radix UI
 - **State:** Zustand (UI state only — sidebar open/closed)
 - **Forms:** React Hook Form + Zod
-- **Build:** Vite 7 + Nitro (preset switches between `dev-server` and `cloudflare-pages`)
+- **Build:** Vite 7 + Nitro (preset switches between `node-server` in dev and `vercel` in production)
 
 ### Two App Modules
 The app has two distinct modules accessed from a hub at `/`:

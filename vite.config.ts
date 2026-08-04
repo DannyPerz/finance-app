@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { devtools } from '@tanstack/devtools-vite'
-import contentCollections from '@content-collections/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -18,10 +17,9 @@ const config = defineConfig({
   plugins: [
     devtools(),
     nitro({
-      preset: process.env.NODE_ENV === 'production' ? 'cloudflare-pages' : 'node-server',
+      preset: process.env.NODE_ENV === 'production' ? 'vercel' : 'node-server',
       rollupConfig: { external: [/^@sentry\//] },
     }),
-    contentCollections(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart(),
