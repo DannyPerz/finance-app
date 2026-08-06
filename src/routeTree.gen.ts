@@ -16,15 +16,9 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as ApiExportCsvRouteImport } from './routes/api/export-csv'
-import { Route as ProtectedWorkRouteImport } from './routes/_protected/work'
 import { Route as ProtectedFinanceRouteImport } from './routes/_protected/finance'
-import { Route as ProtectedWorkIndexRouteImport } from './routes/_protected/work/index'
 import { Route as ProtectedFinanceIndexRouteImport } from './routes/_protected/finance/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ProtectedWorkSettingsRouteImport } from './routes/_protected/work/settings'
-import { Route as ProtectedWorkReportsRouteImport } from './routes/_protected/work/reports'
-import { Route as ProtectedWorkPayrollsRouteImport } from './routes/_protected/work/payrolls'
-import { Route as ProtectedWorkOpsRouteImport } from './routes/_protected/work/ops'
 import { Route as ProtectedFinanceTransactionsRouteImport } from './routes/_protected/finance/transactions'
 import { Route as ProtectedFinanceSettingsRouteImport } from './routes/_protected/finance/settings'
 import { Route as ProtectedFinanceGoalsRouteImport } from './routes/_protected/finance/goals'
@@ -65,20 +59,10 @@ const ApiExportCsvRoute = ApiExportCsvRouteImport.update({
   path: '/api/export-csv',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedWorkRoute = ProtectedWorkRouteImport.update({
-  id: '/work',
-  path: '/work',
-  getParentRoute: () => ProtectedRoute,
-} as any)
 const ProtectedFinanceRoute = ProtectedFinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
   getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedWorkIndexRoute = ProtectedWorkIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ProtectedWorkRoute,
 } as any)
 const ProtectedFinanceIndexRoute = ProtectedFinanceIndexRouteImport.update({
   id: '/',
@@ -89,26 +73,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ProtectedWorkSettingsRoute = ProtectedWorkSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => ProtectedWorkRoute,
-} as any)
-const ProtectedWorkReportsRoute = ProtectedWorkReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => ProtectedWorkRoute,
-} as any)
-const ProtectedWorkPayrollsRoute = ProtectedWorkPayrollsRouteImport.update({
-  id: '/payrolls',
-  path: '/payrolls',
-  getParentRoute: () => ProtectedWorkRoute,
-} as any)
-const ProtectedWorkOpsRoute = ProtectedWorkOpsRouteImport.update({
-  id: '/ops',
-  path: '/ops',
-  getParentRoute: () => ProtectedWorkRoute,
 } as any)
 const ProtectedFinanceTransactionsRoute =
   ProtectedFinanceTransactionsRouteImport.update({
@@ -146,20 +110,14 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/finance': typeof ProtectedFinanceRouteWithChildren
-  '/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
   '/finance/100-days': typeof ProtectedFinance100DaysRoute
   '/finance/categories': typeof ProtectedFinanceCategoriesRoute
   '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
-  '/work/ops': typeof ProtectedWorkOpsRoute
-  '/work/payrolls': typeof ProtectedWorkPayrollsRoute
-  '/work/reports': typeof ProtectedWorkReportsRoute
-  '/work/settings': typeof ProtectedWorkSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/finance/': typeof ProtectedFinanceIndexRoute
-  '/work/': typeof ProtectedWorkIndexRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -173,13 +131,8 @@ export interface FileRoutesByTo {
   '/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/finance/transactions': typeof ProtectedFinanceTransactionsRoute
-  '/work/ops': typeof ProtectedWorkOpsRoute
-  '/work/payrolls': typeof ProtectedWorkPayrollsRoute
-  '/work/reports': typeof ProtectedWorkReportsRoute
-  '/work/settings': typeof ProtectedWorkSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/finance': typeof ProtectedFinanceIndexRoute
-  '/work': typeof ProtectedWorkIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,7 +142,6 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_protected/finance': typeof ProtectedFinanceRouteWithChildren
-  '/_protected/work': typeof ProtectedWorkRouteWithChildren
   '/api/export-csv': typeof ApiExportCsvRoute
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/finance/100-days': typeof ProtectedFinance100DaysRoute
@@ -197,13 +149,8 @@ export interface FileRoutesById {
   '/_protected/finance/goals': typeof ProtectedFinanceGoalsRoute
   '/_protected/finance/settings': typeof ProtectedFinanceSettingsRoute
   '/_protected/finance/transactions': typeof ProtectedFinanceTransactionsRoute
-  '/_protected/work/ops': typeof ProtectedWorkOpsRoute
-  '/_protected/work/payrolls': typeof ProtectedWorkPayrollsRoute
-  '/_protected/work/reports': typeof ProtectedWorkReportsRoute
-  '/_protected/work/settings': typeof ProtectedWorkSettingsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_protected/finance/': typeof ProtectedFinanceIndexRoute
-  '/_protected/work/': typeof ProtectedWorkIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -214,20 +161,14 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/finance'
-    | '/work'
     | '/api/export-csv'
     | '/finance/100-days'
     | '/finance/categories'
     | '/finance/goals'
     | '/finance/settings'
     | '/finance/transactions'
-    | '/work/ops'
-    | '/work/payrolls'
-    | '/work/reports'
-    | '/work/settings'
     | '/api/auth/$'
     | '/finance/'
-    | '/work/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -241,13 +182,8 @@ export interface FileRouteTypes {
     | '/finance/goals'
     | '/finance/settings'
     | '/finance/transactions'
-    | '/work/ops'
-    | '/work/payrolls'
-    | '/work/reports'
-    | '/work/settings'
     | '/api/auth/$'
     | '/finance'
-    | '/work'
   id:
     | '__root__'
     | '/_protected'
@@ -256,7 +192,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/_protected/finance'
-    | '/_protected/work'
     | '/api/export-csv'
     | '/_protected/'
     | '/_protected/finance/100-days'
@@ -264,13 +199,8 @@ export interface FileRouteTypes {
     | '/_protected/finance/goals'
     | '/_protected/finance/settings'
     | '/_protected/finance/transactions'
-    | '/_protected/work/ops'
-    | '/_protected/work/payrolls'
-    | '/_protected/work/reports'
-    | '/_protected/work/settings'
     | '/api/auth/$'
     | '/_protected/finance/'
-    | '/_protected/work/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,26 +264,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExportCsvRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/work': {
-      id: '/_protected/work'
-      path: '/work'
-      fullPath: '/work'
-      preLoaderRoute: typeof ProtectedWorkRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
     '/_protected/finance': {
       id: '/_protected/finance'
       path: '/finance'
       fullPath: '/finance'
       preLoaderRoute: typeof ProtectedFinanceRouteImport
       parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/work/': {
-      id: '/_protected/work/'
-      path: '/'
-      fullPath: '/work/'
-      preLoaderRoute: typeof ProtectedWorkIndexRouteImport
-      parentRoute: typeof ProtectedWorkRoute
     }
     '/_protected/finance/': {
       id: '/_protected/finance/'
@@ -368,34 +284,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_protected/work/settings': {
-      id: '/_protected/work/settings'
-      path: '/settings'
-      fullPath: '/work/settings'
-      preLoaderRoute: typeof ProtectedWorkSettingsRouteImport
-      parentRoute: typeof ProtectedWorkRoute
-    }
-    '/_protected/work/reports': {
-      id: '/_protected/work/reports'
-      path: '/reports'
-      fullPath: '/work/reports'
-      preLoaderRoute: typeof ProtectedWorkReportsRouteImport
-      parentRoute: typeof ProtectedWorkRoute
-    }
-    '/_protected/work/payrolls': {
-      id: '/_protected/work/payrolls'
-      path: '/payrolls'
-      fullPath: '/work/payrolls'
-      preLoaderRoute: typeof ProtectedWorkPayrollsRouteImport
-      parentRoute: typeof ProtectedWorkRoute
-    }
-    '/_protected/work/ops': {
-      id: '/_protected/work/ops'
-      path: '/ops'
-      fullPath: '/work/ops'
-      preLoaderRoute: typeof ProtectedWorkOpsRouteImport
-      parentRoute: typeof ProtectedWorkRoute
     }
     '/_protected/finance/transactions': {
       id: '/_protected/finance/transactions'
@@ -456,35 +344,13 @@ const ProtectedFinanceRouteChildren: ProtectedFinanceRouteChildren = {
 const ProtectedFinanceRouteWithChildren =
   ProtectedFinanceRoute._addFileChildren(ProtectedFinanceRouteChildren)
 
-interface ProtectedWorkRouteChildren {
-  ProtectedWorkOpsRoute: typeof ProtectedWorkOpsRoute
-  ProtectedWorkPayrollsRoute: typeof ProtectedWorkPayrollsRoute
-  ProtectedWorkReportsRoute: typeof ProtectedWorkReportsRoute
-  ProtectedWorkSettingsRoute: typeof ProtectedWorkSettingsRoute
-  ProtectedWorkIndexRoute: typeof ProtectedWorkIndexRoute
-}
-
-const ProtectedWorkRouteChildren: ProtectedWorkRouteChildren = {
-  ProtectedWorkOpsRoute: ProtectedWorkOpsRoute,
-  ProtectedWorkPayrollsRoute: ProtectedWorkPayrollsRoute,
-  ProtectedWorkReportsRoute: ProtectedWorkReportsRoute,
-  ProtectedWorkSettingsRoute: ProtectedWorkSettingsRoute,
-  ProtectedWorkIndexRoute: ProtectedWorkIndexRoute,
-}
-
-const ProtectedWorkRouteWithChildren = ProtectedWorkRoute._addFileChildren(
-  ProtectedWorkRouteChildren,
-)
-
 interface ProtectedRouteChildren {
   ProtectedFinanceRoute: typeof ProtectedFinanceRouteWithChildren
-  ProtectedWorkRoute: typeof ProtectedWorkRouteWithChildren
   ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedFinanceRoute: ProtectedFinanceRouteWithChildren,
-  ProtectedWorkRoute: ProtectedWorkRouteWithChildren,
   ProtectedIndexRoute: ProtectedIndexRoute,
 }
 

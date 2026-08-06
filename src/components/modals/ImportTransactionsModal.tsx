@@ -301,11 +301,16 @@ export function ImportTransactionsModal({ categories, open: openProp, onOpenChan
                           <span className="flex items-center gap-1">
                             {row.categoryName}
                             {!row.categoryId && (
-                              <AlertCircle
-                                size={11}
-                                className="text-amber-500 shrink-0"
+                              <span
+                                className="inline-flex"
                                 title="Categoría no encontrada, se importará sin categoría"
-                              />
+                              >
+                                <AlertCircle
+                                  size={11}
+                                  className="text-amber-500 shrink-0"
+                                  aria-label="Categoría no encontrada"
+                                />
+                              </span>
                             )}
                           </span>
                         ) : (

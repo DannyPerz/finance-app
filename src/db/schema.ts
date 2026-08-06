@@ -114,5 +114,4 @@ export const savingsChallenges = pgTable("savings_challenges", {
 });
 
 // ─── Exports from Other Suites ───────────────────────────
-export * from "./schema.work";
 export * from "./auth-schema";
